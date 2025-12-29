@@ -1,19 +1,25 @@
-modules:
+modules:modules:
+  # Este módulo copia archivos desde tu carpeta local "system"
+  # hacia el sistema raíz de la imagen que estás construyendo.
+  # Es útil para agregar configuraciones personalizadas, dotfiles,
+  # servicios systemd, temas, etc.
   - type: files
     files:
       - source: system
-        destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+        destination: / # Copia todo lo que esté dentro de system/ al root (/) de la imagen
 
+  # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
+  # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
   - type: dnf
     install:
       packages:
-        - sway
-        - waybar
-        - wofi
-        - mako
-        - mpd
-        - mpv
-        - feh
-        - slurp
-        - grim
-        - swayidle
+        - sway # Window Manager tipo i3 pero para Wayland
+        - waybar # Barra de estado altamente configurable para Wayland
+        - wofi # Launcher estilo rofi, compatible con Wayland
+        - mako # Daemon de notificaciones ligero para Wayland
+        - slurp # Herramienta para seleccionar un área en pantalla (usada con grim)
+        - grim # Herramienta para hacer capturas de pantalla en Wayland
+        - swayidle # Daemon de inactividad (idle) para bloquear pantalla, apagar monitor, etc.
+        - swaylock
+        - swaybg
+        - gammastep
