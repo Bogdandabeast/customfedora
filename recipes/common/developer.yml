@@ -9,3 +9,5 @@ modules:
         install: # system flatpaks we want all users to have and not remove
           - io.podman_desktop.PodmanDesktop
       - scope: user # Also add Flathub user repo, but no user packages
+  - type: brew
+    brew-analytics: false # disable telemetry
