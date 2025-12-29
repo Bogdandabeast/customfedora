@@ -54,13 +54,13 @@ modules:
       - scope: user # Also add Flathub user repo, but no user packages
   # variables de entorno de wayland etc...
   - type: copy
-    src: file/system/etc/environment
+    src: /system/etc/environment
     dest: /etc/environment
   #config principal de sway
   - type: copy
-    src: file/system/etc/sway/config
+    src: /system/etc/sway/config
     dest: /etc/sway/config
   #script para backgrounds aleatorios con swaybg
   - type: copy
-    src: file/system/usr/local/bin/random-wallpaper.sh
+    src: /system/usr/local/bin/random-wallpaper.sh
     dest: /usr/local/bin/random-wallpaper.sh
