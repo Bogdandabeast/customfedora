@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
 modules:
   # Este módulo copia archivos desde tu carpeta local "system"
   # hacia el sistema raíz de la imagen que estás construyendo.
@@ -10,7 +11,7 @@ modules:
 
   # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
-  - type: dnf
+  - type: rpm-ostree
     repos:
       - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
