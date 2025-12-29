@@ -6,7 +6,6 @@ modules:
   # servicios systemd, temas, etc.
   - type: script
     scripts:
-      - permissions.sh
       - downloadlatestwinboatrpm.sh
   - type: files
     files:
