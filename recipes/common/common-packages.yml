@@ -1,21 +1,17 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
 modules:
-  # scripts bash
-  - type: script
-    scripts:
-      - downloadlatestwinboatrpm.sh
   # Este módulo copia archivos desde tu carpeta local "system"
   # hacia el sistema raíz de la imagen que estás construyendo.
+  # Es útil para agregar configuraciones personalizadas, dotfiles,
+  # servicios systemd, temas, etc.
+  - type: script
+    scripts:
+      - permissions.sh
+      - downloadlatestwinboatrpm.sh
   - type: files
     files:
-      - source: system/etc/environment
-        destination: /etc/environment
-
-      - source: system/etc/sway/config
-        destination: /etc/sway/config
-
-      - source: system/usr/local/bin/random-wallpaper.sh
-        destination: /usr/bin/random-wallpaper.sh
+      - source: system
+        destination: / # Copia todo lo que esté dentro de system/ al root (/) de la imagen
 
   # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
@@ -46,6 +42,7 @@ modules:
         # "firefox" is the main package, "firefox-langpacks" is a dependency
         - firefox
         - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+
   - type: default-flatpaks
     configurations:
       - notify: true # Send notification after install/uninstall is finished (true/false)

@@ -90,7 +90,7 @@ bindsym $mod+Ctrl+k resize grow height 20px
 # ------------------------------------------------------------
 # 6. Autostart
 # ------------------------------------------------------------
-exec_always --no-startup-id /usr/local/bin/random-wallpaper.sh
+exec_always --no-startup-id /usr/bin/random-wallpaper.sh
 exec_always waybar
 exec_always mako
 exec_always kanshi
