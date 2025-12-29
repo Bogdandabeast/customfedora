@@ -9,5 +9,21 @@ modules:
         install: # system flatpaks we want all users to have and not remove
           - io.podman_desktop.PodmanDesktop
       - scope: user # Also add Flathub user repo, but no user packages
+  - type: dnf
+    repos:
+      files:
+        - docker-ce.repo
+        - zed.repo
+        - vstudio.repo
+    install:
+      packages:
+        - code
+        - zed
+        - fish
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
   - type: brew
     brew-analytics: false # disable telemetry
