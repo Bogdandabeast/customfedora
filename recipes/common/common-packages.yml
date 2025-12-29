@@ -6,10 +6,12 @@ modules:
     files:
       - source: system/etc/environment
         destination: /etc/environment
+
       - source: system/etc/sway/config
         destination: /etc/sway/config
+
       - source: system/usr/local/bin/random-wallpaper.sh
-        destination: /usr/bin/random-wallpaper.sh # Temporarily place in /usr/bin due to /usr/local being a symlink
+        destination: /usr/bin/random-wallpaper.sh
 
   # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
@@ -44,8 +46,8 @@ modules:
   # scripts bash
   - type: script
     scripts:
-      - copysymlinkconfigs.sh
       - downloadlatestwinboatrpm.sh
+      - permissions.sh
 
   - type: default-flatpaks
     configurations:
