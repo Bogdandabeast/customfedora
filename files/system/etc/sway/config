@@ -7,7 +7,7 @@
 # ------------------------------------------------------------
 set $mod Mod4
 set $term alacritty -e fish
-set $menu wofi -show drun
+set $menu wofi --show drun
 
 
 
@@ -50,11 +50,6 @@ bindsym $mod+Shift+e exec "swaynag -t warning -m 'Exit Sway?' -b 'Yes' 'swaymsg 
 bindsym $mod+Shift+q kill
 
 
-# Three-finger swipe to switch workspaces
-bindgesture swipe right workspace next
-bindgesture swipe left workspace prev
-
-
 # Workspaces
  # Switch to workspace
     bindsym $mod+1 workspace number 1
@@ -94,6 +89,7 @@ exec_always --no-startup-id /usr/bin/random-wallpaper.sh
 exec_always waybar
 exec_always mako
 exec_always kanshi
+
 exec_always gammastep -l manual -t 6500:3500
 
 
