@@ -1,0 +1,132 @@
+# ============================================================
+#  SWAY CONFIG — 2025 PERFORMANCE & STABILITY EDITION
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. Environment Basics
+# ------------------------------------------------------------
+set $mod Mod4
+set $term alacritty -e fish
+set $menu rofi -show drun
+
+
+
+# ------------------------------------------------------------
+# 2. Performance Tweaks
+# ------------------------------------------------------------
+
+focus_follows_mouse yes
+default_border pixel
+default_floating_border pixel
+
+
+
+
+output * adaptive_sync on
+output * max_render_time 6
+
+# ------------------------------------------------------------
+# 3. Monitors (example for dual 1080p)
+# ------------------------------------------------------------
+output eDP-1 resolution 1920x1080 position 0,0 scale 1
+
+# Lock scaling
+output * scale_filter nearest
+
+# ------------------------------------------------------------
+# 4. Input Devices
+# ------------------------------------------------------------
+input * {
+    xkb_options caps:escape
+    tap enabled
+}
+
+# ------------------------------------------------------------
+# 5. Keybindings
+# ------------------------------------------------------------
+bindsym $mod+Return exec $term
+bindsym $mod+d exec $menu
+bindsym $mod+Shift+e exec "swaynag -t warning -m 'Exit Sway?' -b 'Yes' 'swaymsg exit'"
+bindsym $mod+Shift+q kill
+
+
+# Three-finger swipe to switch workspaces
+bindgesture swipe right workspace next
+bindgesture swipe left workspace prev
+
+
+# Workspaces
+ # Switch to workspace
+    bindsym $mod+1 workspace number 1
+    bindsym $mod+2 workspace number 2
+    bindsym $mod+3 workspace number 3
+    bindsym $mod+4 workspace number 4
+    bindsym $mod+5 workspace number 5
+    bindsym $mod+6 workspace number 6
+    bindsym $mod+7 workspace number 7
+    bindsym $mod+8 workspace number 8
+    bindsym $mod+9 workspace number 9
+    bindsym $mod+0 workspace number 10
+    # Move focused container to workspace
+    bindsym $mod+Shift+1 move container to workspace number 1
+    bindsym $mod+Shift+2 move container to workspace number 2
+    bindsym $mod+Shift+3 move container to workspace number 3
+    bindsym $mod+Shift+4 move container to workspace number 4
+    bindsym $mod+Shift+5 move container to workspace number 5
+    bindsym $mod+Shift+6 move container to workspace number 6
+    bindsym $mod+Shift+7 move container to workspace number 7
+    bindsym $mod+Shift+8 move container to workspace number 8
+    bindsym $mod+Shift+9 move container to workspace number 9
+    bindsym $mod+Shift+0 move container to workspace number 10
+    # Note: workspaces can have any name you want, not just numbers.
+    # We just use 1-10 as the default.
+
+# Resizing
+bindsym $mod+Ctrl+h resize shrink width 20px
+bindsym $mod+Ctrl+l resize grow width 20px
+bindsym $mod+Ctrl+j resize shrink height 20px
+bindsym $mod+Ctrl+k resize grow height 20px
+
+# ------------------------------------------------------------
+# 6. Autostart
+# ------------------------------------------------------------
+exec_always --no-startup-id /usr/local/bin/random-wallpaper.sh
+exec_always waybar
+exec_always mako
+exec_always kanshi
+exec_always gammastep -l manual -t 6500:3500
+
+
+# ------------------------------------------------------------
+# 7. Idle / Lock
+# ------------------------------------------------------------
+exec_always swayidle -w \
+    timeout 600 'swaylock -f' \
+    timeout 1200 'systemctl suspend'
+
+# ------------------------------------------------------------
+# 8. Scratchpads (Useful for Devs)
+# ------------------------------------------------------------
+for_window [title="scratchpad-term"] move to scratchpad
+bindsym $mod+minus scratchpad show
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# 9. Notifications
+# ------------------------------------------------------------
+exec_always mako
+
+# ------------------------------------------------------------
+# 10. Application Assignments
+# ------------------------------------------------------------
+for_window [app_id="com.brave.Browser"] assign workspace number 1
+for_window [app_id="io.gitlab.librewolf-community"] assign workspace number 1
+for_window [app_id="com.visualstudio.code"] assign workspace number 2
+for_window [class="zed"] assign workspace number 2
+for_window [class="Alacritty"] assign workspace number 3
+for_window [app_id="com.valvesoftware.Steam"] assign workspace number 3
+for_window [app_id="com.spotify.Client"] assign workspace number 3
+
+# ------------------------------------------------------------
+# END OF FILE
+# ------------------------------------------------------------
