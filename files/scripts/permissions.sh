@@ -3,4 +3,4 @@
 
  # Script para dar permisos de ejecución
 
- chmod +x /usr/local/bin/random-wallpaper.sh
+chmod 755 files/system/usr/bin/random-wallpaper.sh
