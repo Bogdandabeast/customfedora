@@ -1,4 +1,5 @@
-modules:modules:
+# yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
+modules:
   # Este módulo copia archivos desde tu carpeta local "system"
   # hacia el sistema raíz de la imagen que estás construyendo.
   # Es útil para agregar configuraciones personalizadas, dotfiles,
