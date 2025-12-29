@@ -11,30 +11,33 @@ modules:
 
   # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
-  - type: rpm-ostree
+  - type: dnf
     repos:
-      - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
+      urls:
+        - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
-      - cloudflare-warp
-      - tailscale
-      # virtualization
-      - virt-manager
-      - libvirt-daemon-driver-network
-      - libvirt-daemon-driver-nodedev
-      - libvirt-daemon-driver-qemu
-      - libvirt-daemon-driver-storage-core
-      - qemu-audio-spice
-      - qemu-char-spice
-      - qemu-device-display-qxl
-      - qemu-device-display-virtio-gpu
-      - qemu-device-display-virtio-vga
-      - qemu-device-usb-redirect
-      - qemu-system-x86-core
+      packages:
+        - cloudflare-warp
+        - tailscale
+        # virtualization
+        - virt-manager
+        - libvirt-daemon-driver-network
+        - libvirt-daemon-driver-nodedev
+        - libvirt-daemon-driver-qemu
+        - libvirt-daemon-driver-storage-core
+        - qemu-audio-spice
+        - qemu-char-spice
+        - qemu-device-display-qxl
+        - qemu-device-display-virtio-gpu
+        - qemu-device-display-virtio-vga
+        - qemu-device-usb-redirect
+        - qemu-system-x86-core
     remove:
-      # example: removing firefox (in favor of the flatpak)
-      # "firefox" is the main package, "firefox-langpacks" is a dependency
-      - firefox
-      - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+      packages:
+        # example: removing firefox (in favor of the flatpak)
+        # "firefox" is the main package, "firefox-langpacks" is a dependency
+        - firefox
+        - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
 
   - type: script
     scripts:

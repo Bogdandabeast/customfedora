@@ -11,17 +11,18 @@ modules:
 
   # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
-  - type: rpm-ostree
+  - type: dnf
     install:
-      - sway # Window Manager tipo i3 pero para Wayland
-      - waybar # Barra de estado altamente configurable para Wayland
-      - wofi # Launcher estilo rofi, compatible con Wayland
-      - mako # Daemon de notificaciones ligero para Wayland
-      - slurp # Herramienta para seleccionar un área en pantalla (usada con grim)
-      - grim # Herramienta para hacer capturas de pantalla en Wayland
-      - swayidle # Daemon de inactividad (idle) para bloquear pantalla, apagar monitor, etc.
-      - swaylock
-      - swaybg
-      - gammastep
-      - sddm
-      - alacritty
+      packages:
+        - sway # Window Manager tipo i3 pero para Wayland
+        - waybar # Barra de estado altamente configurable para Wayland
+        - wofi # Launcher estilo rofi, compatible con Wayland
+        - mako # Daemon de notificaciones ligero para Wayland
+        - slurp # Herramienta para seleccionar un área en pantalla (usada con grim)
+        - grim # Herramienta para hacer capturas de pantalla en Wayland
+        - swayidle # Daemon de inactividad (idle) para bloquear pantalla, apagar monitor, etc.
+        - swaylock
+        - swaybg
+        - gammastep
+        - sddm
+        - alacritty
