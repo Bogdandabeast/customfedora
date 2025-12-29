@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
+modules:
+  # Este módulo copia archivos desde tu carpeta local "system"
+  # hacia el sistema raíz de la imagen que estás construyendo.
+  # Es útil para agregar configuraciones personalizadas, dotfiles,
+  # servicios systemd, temas, etc.
+  - type: files
+    files:
+      - source: system
+        destination: / # Copia todo lo que esté dentro de system/ al root (/) de la imagen
+
+  # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
+  # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
+  - type: dnf
+    repos:
+      - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
+    install:
+      - cloudflare-warp
+      - tailscale
+      # virtualization
+      - virt-manager
+      - libvirt-daemon-driver-network
+      - libvirt-daemon-driver-nodedev
+      - libvirt-daemon-driver-qemu
+      - libvirt-daemon-driver-storage-core
+      - qemu-audio-spice
+      - qemu-char-spice
+      - qemu-device-display-qxl
+      - qemu-device-display-virtio-gpu
+      - qemu-device-display-virtio-vga
+      - qemu-device-usb-redirect
+      - qemu-system-x86-core
+    remove:
+      # example: removing firefox (in favor of the flatpak)
+      # "firefox" is the main package, "firefox-langpacks" is a dependency
+      - firefox
+      - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+
+  - type: script
+    scripts:
+      - downloadlatestwinboatrpm.sh
+  - type: default-flatpaks
+    configurations:
+      - notify: true # Send notification after install/uninstall is finished (true/false)
+        scope: system
+        # If no repo information is specified, Flathub will be used by default
+        install: # system flatpaks we want all users to have and not remove
+          - org.keepassxc.KeePassXC
+          - io.gitlab.librewolf-community
+          - com.brave.Browser
+      - scope: user # Also add Flathub user repo, but no user packages

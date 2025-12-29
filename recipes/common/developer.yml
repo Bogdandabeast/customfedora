@@ -11,17 +11,11 @@ modules:
 
   # Este módulo instala paquetes usando DNF (el gestor de paquetes de Fedora).
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
-  - type: dnf
-    install:
-      - sway # Window Manager tipo i3 pero para Wayland
-      - waybar # Barra de estado altamente configurable para Wayland
-      - wofi # Launcher estilo rofi, compatible con Wayland
-      - mako # Daemon de notificaciones ligero para Wayland
-      - slurp # Herramienta para seleccionar un área en pantalla (usada con grim)
-      - grim # Herramienta para hacer capturas de pantalla en Wayland
-      - swayidle # Daemon de inactividad (idle) para bloquear pantalla, apagar monitor, etc.
-      - swaylock
-      - swaybg
-      - gammastep
-      - sddm
-      - alacritty
+  - type: default-flatpaks
+    configurations:
+      - notify: true # Send notification after install/uninstall is finished (true/false)
+        scope: system
+        # If no repo information is specified, Flathub will be used by default
+        install: # system flatpaks we want all users to have and not remove
+          - io.podman_desktop.PodmanDesktop
+      - scope: user # Also add Flathub user repo, but no user packages
