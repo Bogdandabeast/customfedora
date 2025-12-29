@@ -13,7 +13,7 @@ modules:
   # Aquí estás instalando todo el entorno base para un setup de Sway en Wayland.
   - type: dnf
     repos:
-      urls:
+      files:
         - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
       packages:
