@@ -15,7 +15,9 @@
         "cpu",
         "network",
         "pulseaudio",
-        "battery"
+        "battery",
+        "custom/tlp",
+        "custom/bluetooth"
     ],
 
     "clock": {
@@ -44,5 +46,22 @@
     "battery": {
         "format": "🔋 {capacity}%",
         "format-charging": "⚡ {capacity}%"
+    },
+
+    "custom/tlp": {
+        "format": " {}",
+        "exec": "~/.config/waybar/scripts/tlp.sh",
+        "interval": 5,
+        "on-click": "~/.config/waybar/scripts/tlp-toggle.sh",
+        "tooltip": true
+    },
+
+    "custom/bluetooth": {
+        "format": " {}",
+        "exec": "~/.config/waybar/scripts/bluetooth.sh",
+        "interval": 5,
+        "on-click": "blueman-manager",
+        "on-click-right": "bluetoothctl power toggle",
+        "tooltip": true
     }
 }

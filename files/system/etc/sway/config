@@ -37,8 +37,9 @@ output * scale_filter nearest
 # 4. Input Devices
 # ------------------------------------------------------------
 input * {
-    xkb_options caps:escape
+    xkb_options caps:toggle
     tap enabled
+    xkb_layout es
 }
 
 # ------------------------------------------------------------
@@ -48,6 +49,10 @@ bindsym $mod+Return exec $term
 bindsym $mod+d exec $menu
 bindsym $mod+Shift+e exec "swaynag -t warning -m 'Exit Sway?' -b 'Yes' 'swaymsg exit'"
 bindsym $mod+Shift+q kill
+bindsym $mod+Shift+f exec "code & flatpak run io.gitlab.librewolf-community"
+
+bindsym Alt+Tab workspace prev_on_output
+bindsym Super+Tab workspace next_on_output
 
 
 # Workspaces
@@ -78,6 +83,7 @@ bindsym $mod+Shift+q kill
 
 # Resizing
 bindsym $mod+Ctrl+h resize shrink width 20px
+
 bindsym $mod+Ctrl+l resize grow width 20px
 bindsym $mod+Ctrl+j resize shrink height 20px
 bindsym $mod+Ctrl+k resize grow height 20px
@@ -85,10 +91,14 @@ bindsym $mod+Ctrl+k resize grow height 20px
 # ------------------------------------------------------------
 # 6. Autostart
 # ------------------------------------------------------------
-exec_always --no-startup-id /usr/bin/random-wallpaper.sh
+# exec_always --no-startup-id /usr/bin/random-wallpaper.sh
+exec_always swaybg -i  /usr/share/backgrounds/The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg -m fill
 exec_always waybar
 exec_always mako
 exec_always kanshi
+exec $term
+
+
 
 exec_always gammastep -l manual -t 6500:3500
 
@@ -115,13 +125,15 @@ exec_always mako
 # ------------------------------------------------------------
 # 10. Application Assignments
 # ------------------------------------------------------------
-for_window [app_id="com.brave.Browser"] assign workspace number 1
-for_window [app_id="io.gitlab.librewolf-community"] assign workspace number 1
-for_window [app_id="com.visualstudio.code"] assign workspace number 2
-for_window [class="zed"] assign workspace number 2
-for_window [class="Alacritty"] assign workspace number 3
-for_window [app_id="com.valvesoftware.Steam"] assign workspace number 3
-for_window [app_id="com.spotify.Client"] assign workspace number 3
+
+assign [app_id="brave-browser"] 1
+assign [app_id="librewolf"] 1
+assign [app_id="dev.zed.Zed"] 2
+assign [app_id="code"] 2
+assign [app_id="Alacritty"] 3
+assign [app_id="com.valvesoftware.Steam"] 4
+assign [app_id="com.spotify.Client"] 4
+
 
 # ------------------------------------------------------------
 # END OF FILE

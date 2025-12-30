@@ -37,6 +37,7 @@ modules:
         - qemu-system-x86-core
         # power manangment
         - tlp
+        - blueman
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
