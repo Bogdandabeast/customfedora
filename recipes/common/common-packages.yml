@@ -35,6 +35,8 @@ modules:
         - qemu-device-display-virtio-vga
         - qemu-device-usb-redirect
         - qemu-system-x86-core
+        # power manangment
+        - tlp
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
