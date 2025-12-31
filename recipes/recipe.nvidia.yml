@@ -10,11 +10,12 @@ image-version: latest # latest is also supported if you want new updates ASAP
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
+  - from-file: common/nvidia-open.yml
   - from-file: common/common-packages.yml
   - from-file: common/sway.yml
   - from-file: common/developer.yml
   - from-file: common/systemd.yml
-  - from-file: common/nvidia-open.yml
+  
   - type: justfiles
   - type: os-release
     properties:
