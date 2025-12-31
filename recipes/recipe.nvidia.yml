@@ -13,6 +13,7 @@ modules:
   #- from-file: common/nvidia-open.yml
   - from-file: common/common-packages.yml
   - from-file: common/sway.yml
+  - from-file: common/nvidia-sway-sddm.yml
   - from-file: common/developer.yml
   - from-file: common/systemd.yml
   - type: justfiles
