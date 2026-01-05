@@ -107,7 +107,7 @@ exec_always gammastep -l manual -t 6500:3500
 # 7. Idle / Lock
 # ------------------------------------------------------------
 exec_always swayidle -w \
-    timeout 600 'swaylock -f' \
+    timeout 600 'swaylock --image /usr/share/backgrounds/wallpaper.jpg  -f' \
     timeout 1200 'systemctl suspend'
 
 # ------------------------------------------------------------
