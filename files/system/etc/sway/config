@@ -126,13 +126,13 @@ exec_always mako
 # 10. Application Assignments
 # ------------------------------------------------------------
 
-assign [app_id="brave-browser"] 1
+assign [app_id="brave-browser"] 4
 assign [app_id="librewolf"] 1
 assign [app_id="dev.zed.Zed"] 2
 assign [app_id="code"] 2
 assign [app_id="Alacritty"] 3
-assign [app_id="com.valvesoftware.Steam"] 4
-assign [app_id="com.spotify.Client"] 4
+assign [app_id="com.valvesoftware.Steam"] 5
+assign [app_id="com.spotify.Client"] 5
 
 
 # ------------------------------------------------------------
