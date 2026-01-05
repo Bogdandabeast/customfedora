@@ -16,4 +16,4 @@ echo "Downloading RPM from: $RPM_URL"
 curl -L -o /tmp/winboat.rpm "$RPM_URL"
 
 echo "Installing RPM with dnf..."
-sudo dnf install -y /tmp/winboat.rpm
+dnf install -y /tmp/winboat.rpm
