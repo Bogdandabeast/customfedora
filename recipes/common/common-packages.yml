@@ -38,6 +38,8 @@ modules:
         # power manangment
         - tlp
         - blueman
+        - dolphin
+        - elisa-player
     remove:
       packages:
         # example: removing firefox (in favor of the flatpak)
