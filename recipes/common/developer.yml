@@ -25,5 +25,3 @@ modules:
         - containerd.io
         - docker-buildx-plugin
         - docker-compose-plugin
-  - type: brew
-    brew-analytics: false # disable telemetry
