@@ -24,9 +24,4 @@ modules:
         - swaylock
         - swaybg
         - gammastep
-        - sddm
         - alacritty
-        - fish
-        - sddm-wayland-greeter
-        - seatd 
-        - xdg-desktop-portal-wlr
