@@ -27,3 +27,7 @@ modules:
         - sddm
         - alacritty
         - fish
+        # packages
+        - xdg-desktop-portal
+        - xdg-desktop-portal-wlr
+        - xdg-desktop-portal-gtk

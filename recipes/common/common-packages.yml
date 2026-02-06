@@ -22,6 +22,7 @@ modules:
       packages:
         - cloudflare-warp
         - tailscale
+        - thunar
         # virtualization
         - virt-manager
         - libvirt-daemon-driver-network
