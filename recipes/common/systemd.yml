@@ -4,4 +4,3 @@ modules:
     system:
       enabled:
         - warp-svc.service
-        - tlp.service
