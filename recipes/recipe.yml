@@ -11,6 +11,7 @@ image-version: latest # latest is also supported if you want new updates ASAP
 # you can include multiple instances of the same module
 modules:
   - from-file: common/common-packages.yml
+  - from-file: common/sway.yml
   - from-file: common/systemd.yml
   - type: justfiles
   - type: os-release
