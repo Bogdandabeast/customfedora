@@ -20,7 +20,7 @@ modules:
         - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
       packages:
-        - cloudflare-warp-2026.3.846.0-1.x86_64 #fix temporal hasta que cf arregla sus dependencias.
+        - cloudflare-warp-2026.3.846.0-1 #fix temporal hasta que cf arregla sus dependencias.
         # power manangment
         #- tlp
     remove:
