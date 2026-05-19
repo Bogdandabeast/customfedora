@@ -19,8 +19,9 @@ modules:
       files:
         - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
+      skip-broken: true 
       packages:
-        - cloudflare-warp-2026.3.846.0-1 #fix temporal hasta que cf arregla sus dependencias.
+        - cloudflare-warp 
         # power manangment
         #- tlp
     remove:
