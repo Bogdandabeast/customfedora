@@ -4,7 +4,7 @@ name: customfedora-hyprland
 description: Personal OS image based on Hyprland (Omarchy migration).
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: quay.io/fedora-ostree-desktops/base-atomic
+base-image: ghcr.io/ublue-os/bluefin-dx
 image-version: latest
 
 # module configuration, executed in order
