@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/module-v1.json
+modules:
+  - type: dnf
+    repos:
+      files:
+        - https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/repo/fedora-40/solopasha-hyprland-fedora-40.repo
+    install:
+      packages:
+        - hyprland
+        - waybar
+        - mako
+        - foot
+        - kitty
+        - bat
+        - fzf
+        - ripgrep
+        - zoxide
+        - eza
+        - btop
+        - starship
+        - fd-find
+        - dust
+        - grim
+        - slurp
+        - hyprlock
+        - hypridle
+        - hyprpicker
+        - hyprsunset
+        - wl-clipboard
+        - xdg-desktop-portal-hyprland
+        - polkit-gnome
+        - sddm
+        - plymouth
+        - neovim
+
+  - type: files
+    files:
+      - source: omarchy
+        destination: /omarchy
+      - source: omarchy/default/sddm
+        destination: /usr/share/sddm/themes/omarchy
+      - source: omarchy/default/plymouth
+        destination: /usr/share/plymouth/themes/omarchy
+
+  - type: script
+    scripts:
+      - setup-omarchy-skel.sh
+
+  - type: systemd
+    system:
+      enabled:
+        - sddm.service
