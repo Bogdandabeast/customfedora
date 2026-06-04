@@ -1,0 +1,148 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 36,
+    "spacing": 4,
+    "modules-left": ["sway/workspaces", "custom/screenshot"],
+    "modules-center": ["clock", "custom/weather"],
+    "modules-right": ["cpu", "memory", "disk", "power-profiles-daemon", "pulseaudio", "network", "battery", "custom/power-menu"],
+
+    "sway/workspaces": {
+        "format": "{name}",
+        "on-click": "activate",
+        "sort-by-number": true
+    },
+
+    "clock": {
+        "format": "{:%H:%M}",
+        "format-alt": "{:%A, %B %d, %Y (%R)}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "weeks-pos": "right",
+            "format": {
+                "months": "<span color='#ffead3'><b>{}</b></span>",
+                "days": "<span color='#ecc6d9'><b>{}</b></span>",
+                "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+            }
+        }
+    },
+
+    "cpu": {
+        "format": "CPU {usage}% 󰻠",
+        "interval": 10
+    },
+
+    "memory": {
+        "format": "RAM {percentage}% 󰍛",
+        "interval": 30
+    },
+
+    "disk": {
+        "format": "Disk {free} 󰋚",
+        "path": "/var/home",
+        "interval": 30
+    },
+
+    "power-profiles-daemon": {
+        "format": "{icon}",
+        "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+        "format-icons": {
+            "default": "",
+            "performance": "",
+            "balanced": "",
+            "power-saver": ""
+        }
+    },
+
+    "pulseaudio": {
+        "format": "{volume}%  {icon}",
+        "format-bluetooth": "  {volume}%",
+        "format-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        }
+    },
+
+    "network": {
+        "format-wifi": "󰖩  {essid}",
+        "format-ethernet": "󰈀  {ifname}",
+        "format-disconnected": "Disconnected ⚠",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "on-click": "nm-connection-editor"
+    },
+
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon}",
+        "format-charging": "{capacity}% 󰂄",
+        "format-plugged": "{capacity}% 󰂅",
+        "format-icons": ["󰁼", "󰁽", "󰁾", "󰁿", "󰁹"]
+    },
+
+    "tray": {
+        "spacing": 10
+    },
+
+    "custom/power-menu": {
+        "format": "󰐥",
+        "on-click": "/var/home/bobbie/.config/waybar/scripts/power-menu.sh",
+        "tooltip": false
+    },
+
+    "custom/screenshot": {
+        "format": "󰄄",
+        "on-click": "grim -g \"$(slurp)\" ~/Pictures/$(date +'%Y-%m-%d_%H-%M-%S').png",
+        "tooltip": false
+    },
+
+    "custom/lock": {
+        "format": "󰌾",
+        "on-click": "swaylock",
+        "tooltip": false
+    },
+
+    "custom/logout": {
+        "format": "󰗼",
+        "on-click": "swaymsg exit",
+        "tooltip": false
+    },
+
+    "custom/power": {
+        "format": "󰐥",
+        "on-click": "systemctl poweroff",
+        "tooltip": false
+    },
+
+    "custom/media": {
+        "format": "{icon} {}",
+        "return-type": "json",
+        "max-length": 40,
+        "exec": "playerctl -a metadata --format '{\"text\": \"{{playerName}}: {{artist}} - {{title}}\", \"alt\": \"{{status}}\"}' -F",
+        "on-click": "playerctl play-pause",
+        "format-icons": {
+            "Playing": "󰐊",
+            "Paused": "󰏤"
+        }
+    },
+
+    "custom/weather": {
+        "format": "{} 󰖐",
+        "tooltip": true,
+        "interval": 3600,
+        "exec": "curl -s 'wttr.in/?format=1'",
+        "on-click": "xdg-open https://wttr.in"
+    }
+}
+}
