@@ -34,9 +34,7 @@ modules:
         # Terminal
         - alacritty
         # Screenshots + OCR
-        - wl-clipboard
         - tesseract
-        - tesseract-langpack-eng
         # Networking
         - nmap
         # Scanning
