@@ -12,6 +12,7 @@ image-version: latest # latest is also supported if you want new updates ASAP
 modules:
   - from-file: common/common-packages.yml
   - from-file: common/sway.yml
+  - from-file: common/developer.yml
   - type: justfiles
   - type: os-release
     properties:
