@@ -62,6 +62,8 @@ modules:
       packages:
         - firefox
         - firefox-langpacks
+    options:
+      - --allowerasing
 
   # Module 3: Repo isolation (disable external repos)
   - type: script
