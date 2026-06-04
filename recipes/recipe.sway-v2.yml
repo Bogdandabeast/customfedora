@@ -13,14 +13,17 @@ modules:
       - source: system
         destination: /
 
-  # Module 2: DNF with external repos
+  # Module 2: DNF with external repos (auto-cleaned after install)
   - type: dnf
     repos:
+      cleanup: true
       files:
         - docker-ce.repo
         - vstudio.repo
         - zed.repo
     install:
+      allow-erasing: true
+      skip-broken: true
       packages:
         # Dev tooling
         - distrobox
@@ -39,7 +42,7 @@ modules:
         # Input + mounts
         - ydotool
         - fuse-sshfs
-        # External repo packages (repos must be disabled after)
+        # External repo packages
         - code
         - zed
         - docker-ce
@@ -52,17 +55,12 @@ modules:
         - firefox
         - firefox-langpacks
 
-  # Module 3: Repo isolation (disable external repos)
-  - type: script
-    scripts:
-      - disable-external-repos.sh
-
-  # Module 4: Winboat RPM
+  # Module 3: Winboat RPM
   - type: script
     scripts:
       - downloadlatestwinboatrpm.sh
 
-  # Module 5: Flatpaks
+  # Module 4: Flatpaks
   - type: default-flatpaks
     configurations:
       - notify: true
@@ -78,17 +76,17 @@ modules:
           - com.brave.Browser
       - scope: user
 
-  # Module 6: Systemd services
+  # Module 5: Systemd services
   - type: systemd
     system:
       enabled:
         - docker.socket
         - podman.socket
 
-  # Module 7: Homebrew (installed at first boot via systemd)
+  # Module 6: Homebrew (installed at first boot via systemd)
   - type: brew
     brew-analytics: false
     nofile-limits: true
 
-  # Module 8: Signing
+  # Module 7: Signing
   - type: signing
