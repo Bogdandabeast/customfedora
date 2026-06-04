@@ -38,8 +38,9 @@ jobs:
         with:
           recipe: ${{ matrix.recipe }}
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
-          registry_token: ${{ github.event_name != 'pull_request' && github.token || '' }}
+          registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
+          push: ${{ github.event_name != 'pull_request' }}
 
           # enabled by default, disable if your image is small and you want faster builds
           maximize_build_space: true
