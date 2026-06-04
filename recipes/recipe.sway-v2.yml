@@ -39,10 +39,8 @@ modules:
         - nmap
         # Scanning
         - simple-scan
-        - sane-backends-drivers-scanners
         # Input + mounts
         - ydotool
-        - cifs-utils
         - fuse-sshfs
         # Sway deps (not in base or needed explicitly)
         - kanshi
@@ -62,8 +60,6 @@ modules:
       packages:
         - firefox
         - firefox-langpacks
-    options:
-      - --allowerasing
 
   # Module 3: Repo isolation (disable external repos)
   - type: script
