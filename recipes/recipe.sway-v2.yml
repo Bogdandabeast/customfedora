@@ -33,6 +33,9 @@ modules:
         - fish
         # Terminal
         - alacritty
+        # JavaScript runtime
+        - nodejs
+        - npm
         # Input + mounts
         - ydotool
         - fuse-sshfs
@@ -54,10 +57,9 @@ modules:
     scripts:
       - disable-external-repos.sh
 
-  # Module 4: Homebrew + winboat
+  # Module 4: Winboat RPM
   - type: script
     scripts:
-      - install-brew.sh
       - downloadlatestwinboatrpm.sh
 
   # Module 5: Flatpaks
