@@ -34,8 +34,6 @@ modules:
         # Terminal
         - alacritty
         # Screenshots + OCR
-        - grim
-        - slurp
         - wl-clipboard
         - tesseract
         - tesseract-langpack-eng
