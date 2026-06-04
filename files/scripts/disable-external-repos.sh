@@ -1,25 +1,22 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# List of external repo files to disable
+# Remove external repo files entirely after packages are installed
 REPOS=(
-    "docker-ce.repo"
-    "vstudio.repo"
-    "zed.repo"
+    "/etc/yum.repos.d/docker-ce.repo"
+    "/etc/yum.repos.d/vstudio.repo"
+    "/etc/yum.repos.d/zed.repo"
+    "/etc/yum.repos.d/_copr"*.repo
 )
 
 for repo in "${REPOS[@]}"; do
-    repo_path="/etc/yum.repos.d/${repo}"
-    if [[ -f "$repo_path" ]]; then
-        # Disable via file sed (catches standard repos)
-        sed -i 's/^enabled=.*/enabled=0/g' "$repo_path"
-        sed -i 's/^enabled_metadata=.*/enabled_metadata=0/g' "$repo_path"
-        # Also disable via dnf config-manager (catches COPR repos with different IDs)
-        grep '^\[' "$repo_path" | tr -d '[]' | while read -r repoid; do
-            dnf config-manager --set-disabled "$repoid" 2>/dev/null || true
-        done
-        echo "Disabled repo: $repo"
-    fi
+    # Expand globs and remove matching files
+    for f in $repo; do
+        if [[ -f "$f" ]]; then
+            rm -f "$f"
+            echo "Removed repo: $f"
+        fi
+    done
 done
 
 # Verify no external repos remain enabled
@@ -28,9 +25,9 @@ if ! dnf repolist --enabled >/dev/null 2>&1; then
     echo "ERROR: dnf repolist --enabled failed" >&2
     exit 1
 fi
-if dnf repolist --enabled | grep -qE '(docker-ce|vscode|zed)'; then
+if dnf repolist --enabled | grep -qE '(docker-ce|vscode|zed|copr)'; then
     echo "ERROR: Some external repos are still enabled!" >&2
-    dnf repolist --enabled | grep -E '(docker-ce|vscode|zed)' >&2
+    dnf repolist --enabled | grep -E '(docker-ce|vscode|zed|copr)' >&2
     exit 1
 fi
-echo "All external repos successfully disabled."
+echo "All external repos successfully removed."
