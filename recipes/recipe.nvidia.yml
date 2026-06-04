@@ -1,21 +1,16 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # image will be published to ghcr.io/<user>/<name>
-name: sway
+name: fedora-atomic-sway-bluebuild-nvidia
 # description will be included in the image's metadata
-description: This is my personal OS image based on sway.
+description: My personal Fedora Sericea (Sway Atomic) image with NVIDIA drivers.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: fedora-atomic-sway-bluebuild
+base-image: ghcr.io/bogdandabeast/fedora-atomic-sway-bluebuild
 image-version: latest # latest is also supported if you want new updates ASAP
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
-  #- from-file: common/nvidia-open.yml
-  - from-file: common/developer.yml
-  - type: justfiles
-  - type: os-release
-    properties:
-      ID: Bogdan_Dev_Fedora
-      NAME: BogdanDevFedora
-      PRETTY_NAME: BogdanDevFedora Image
+  - from-file: common/nvidia-open.yml
+  - from-file: common/nvidia-sway-sddm.yml
   - type: signing # this sets up the proper policy & signing files for signed images to work fully

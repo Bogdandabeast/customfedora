@@ -1,5 +1,6 @@
+# yaml-language-server: $schema=https://schema.blue-build.org/module-list-v1.json
 modules:
   - type: files
     files:
-      - source: scripts/sway.desktop # copies `files/my-image/usr/*` to `/usr/` inside the image
+      - source: scripts/sway.desktop
         destination: /usr/share/wayland-sessions/sway.desktop
