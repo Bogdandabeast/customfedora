@@ -43,8 +43,6 @@ modules:
         - ydotool
         - fuse-sshfs
         # Sway deps (not in base or needed explicitly)
-        - kanshi
-        - playerctl
         - power-profiles-daemon
         - jq
         - brightnessctl
