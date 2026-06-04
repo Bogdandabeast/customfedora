@@ -6,7 +6,6 @@ REPOS=(
     "docker-ce.repo"
     "vstudio.repo"
     "zed.repo"
-    "cloudflare-warp.repo"
 )
 
 for repo in "${REPOS[@]}"; do
@@ -19,9 +18,9 @@ done
 
 # Verify no external repos remain enabled
 echo "Verifying no external repos are enabled..."
-if dnf repolist --enabled 2>/dev/null | grep -qE '(docker-ce|vscode|zed|cloudflare)'; then
+if dnf repolist --enabled 2>/dev/null | grep -qE '(docker-ce|vscode|zed)'; then
     echo "ERROR: Some external repos are still enabled!" >&2
-    dnf repolist --enabled | grep -E '(docker-ce|vscode|zed|cloudflare)' >&2
+    dnf repolist --enabled | grep -E '(docker-ce|vscode|zed)' >&2
     exit 1
 fi
 echo "All external repos successfully disabled."

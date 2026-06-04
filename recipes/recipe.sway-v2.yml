@@ -20,7 +20,6 @@ modules:
         - docker-ce.repo
         - vstudio.repo
         - zed.repo
-        - cloudflare-warp.repo
     install:
       packages:
         # Dev tooling
@@ -62,7 +61,6 @@ modules:
         - containerd.io
         - docker-buildx-plugin
         - docker-compose-plugin
-        - cloudflare-warp
     remove:
       packages:
         - firefox
@@ -101,7 +99,6 @@ modules:
       enabled:
         - docker.socket
         - podman.socket
-        - warp-svc.service
 
   # Module 7: Signing
   - type: signing
