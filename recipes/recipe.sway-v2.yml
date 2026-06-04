@@ -3,8 +3,8 @@
 name: sway
 description: My personal Fedora Sericea (Sway Atomic) custom image.
 
-base-image: ghcr.io/ublue-os/sericea-main
-image-version: latest
+base-image: quay.io/fedora-ostree-desktops/sway-atomic
+image-version: 43
 
 modules:
   # Module 1: Files overlay (configs)
