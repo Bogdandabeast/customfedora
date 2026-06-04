@@ -19,9 +19,9 @@ modules:
       files:
         - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
-      skip-broken: true 
+      skip-broken: true
       packages:
-        #- cloudflare-warp 
+        - cloudflare-warp
         # power manangment
         #- tlp
     remove:
