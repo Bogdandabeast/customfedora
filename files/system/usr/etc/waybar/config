@@ -97,7 +97,7 @@
 
     "custom/power-menu": {
         "format": "󰐥",
-        "on-click": "/var/home/bobbie/.config/waybar/scripts/power-menu.sh",
+        "on-click": "/usr/etc/waybar/scripts/power-menu.sh",
         "tooltip": false
     },
 
