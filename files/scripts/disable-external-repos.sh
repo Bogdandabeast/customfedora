@@ -11,7 +11,13 @@ REPOS=(
 for repo in "${REPOS[@]}"; do
     repo_path="/etc/yum.repos.d/${repo}"
     if [[ -f "$repo_path" ]]; then
+        # Disable via file sed (catches standard repos)
         sed -i 's/^enabled=.*/enabled=0/g' "$repo_path"
+        sed -i 's/^enabled_metadata=.*/enabled_metadata=0/g' "$repo_path"
+        # Also disable via dnf config-manager (catches COPR repos with different IDs)
+        grep '^\[' "$repo_path" | tr -d '[]' | while read -r repoid; do
+            dnf config-manager --set-disabled "$repoid" 2>/dev/null || true
+        done
         echo "Disabled repo: $repo"
     fi
 done
