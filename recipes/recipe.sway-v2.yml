@@ -33,17 +33,9 @@ modules:
         - fish
         # Terminal
         - alacritty
-        # Screenshots + OCR
-        - tesseract
-        # Networking
-        - nmap
-        # Scanning
-        - simple-scan
         # Input + mounts
         - ydotool
         - fuse-sshfs
-        # Sway deps (not in base or needed explicitly)
-        - power-profiles-daemon
         # External repo packages (repos must be disabled after)
         - code
         - zed
