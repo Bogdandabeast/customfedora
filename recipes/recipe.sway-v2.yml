@@ -44,8 +44,6 @@ modules:
         - fuse-sshfs
         # Sway deps (not in base or needed explicitly)
         - power-profiles-daemon
-        - jq
-        - brightnessctl
         # External repo packages (repos must be disabled after)
         - code
         - zed
