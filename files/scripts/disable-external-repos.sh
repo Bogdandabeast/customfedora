@@ -18,7 +18,11 @@ done
 
 # Verify no external repos remain enabled
 echo "Verifying no external repos are enabled..."
-if dnf repolist --enabled 2>/dev/null | grep -qE '(docker-ce|vscode|zed)'; then
+if ! dnf repolist --enabled >/dev/null 2>&1; then
+    echo "ERROR: dnf repolist --enabled failed" >&2
+    exit 1
+fi
+if dnf repolist --enabled | grep -qE '(docker-ce|vscode|zed)'; then
     echo "ERROR: Some external repos are still enabled!" >&2
     dnf repolist --enabled | grep -E '(docker-ce|vscode|zed)' >&2
     exit 1

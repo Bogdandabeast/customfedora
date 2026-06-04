@@ -213,7 +213,7 @@ window#waybar {
 }
 
 #network.disconnected {
-    color: @eb4d4b;
+    color: @red;
 }
 
 

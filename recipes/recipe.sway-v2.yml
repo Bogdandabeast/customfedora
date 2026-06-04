@@ -53,6 +53,7 @@ modules:
         - playerctl
         - power-profiles-daemon
         - jq
+        - brightnessctl
         # External repo packages (repos must be disabled after)
         - code
         - zed

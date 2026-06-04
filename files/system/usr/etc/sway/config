@@ -133,8 +133,8 @@ bindsym --locked XF86AudioLowerVolume exec "pactl set-sink-volume @DEFAULT_SINK@
 bindsym --locked XF86AudioMute exec "pactl set-sink-mute @DEFAULT_SINK@ toggle"
 
 # 6i. Brightness controls (locked — work even when screen is locked)
-bindsym --locked XF86MonBrightnessUp exec "sudo ~/.local/bin/brightness up"
-bindsym --locked XF86MonBrightnessDown exec "sudo ~/.local/bin/brightness down"
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set +5%
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 
 # 6j. Screenshots
 bindsym Print exec "slurp | grim -g - - | wl-copy"
