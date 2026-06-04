@@ -85,5 +85,10 @@ modules:
         - docker.socket
         - podman.socket
 
-  # Module 7: Signing
+  # Module 7: Homebrew (installed at first boot via systemd)
+  - type: brew
+    brew-analytics: false
+    nofile-limits: true
+
+  # Module 8: Signing
   - type: signing
