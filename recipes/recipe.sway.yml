@@ -1,0 +1,75 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# image will be published to ghcr.io/<user>/<name>
+name: fedora-atomic-sway-bluebuild
+# description will be included in the image's metadata
+description: My personal Fedora Sericea (Sway Atomic) image.
+
+# the base image to build on top of (FROM) and the version tag to use
+base-image: quay.io/fedora-ostree-desktops/sway-atomic
+image-version: 44
+
+# module configuration, executed in order
+# you can include multiple instances of the same module
+modules:
+  - type: files
+    files:
+      - source: system
+        destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+
+  - type: dnf
+    install:
+      packages:
+        # container dev environments
+        - distrobox
+        - gh
+        - tealdeer
+        - chezmoi
+        - neovim
+        - tmux
+        - zsh
+        # screenshots + OCR
+        - grim
+        - slurp
+        - wl-clipboard
+        - tesseract
+        - tesseract-langpack-deu
+        - tesseract-langpack-eng
+        - nmap
+        # Node.js for user-space npm packages (Claude Code etc.)
+        - nodejs
+        - npm
+        # scanning
+        - simple-scan
+        - sane-backends-drivers-scanners
+        - ydotool
+        - cifs-utils
+        - fuse-sshfs
+    remove:
+      packages:
+        # removing firefox RPM in favor of the flatpak (faster security updates)
+        - firefox
+        - firefox-langpacks
+
+  - type: script
+    scripts:
+      - install-icloudpd.sh
+      - install-ventoy.sh
+
+  - type: default-flatpaks
+    # Two configurations: one for system-wide apps, one to enable user-scope Flathub
+    configurations:
+      - notify: true
+        # system = /var/lib/flatpak, available for all users, requires root to modify
+        scope: system
+        install:
+          - org.mozilla.firefox
+          - org.gnome.Loupe
+          - org.gimp.GIMP
+          - org.libreoffice.LibreOffice
+          - org.audacityteam.Audacity
+      # user = ~/.local/share/flatpak, per-user apps, user can install without root
+      - scope: user
+        # no install list here = just enables Flathub repo for user-installed apps
+
+  - type: signing # this sets up the proper policy & signing files for signed images to work fully

@@ -25,3 +25,4 @@ modules:
         - swaybg
         - gammastep
         - alacritty
+        - polkit-gnome

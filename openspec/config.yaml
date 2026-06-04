@@ -1,0 +1,57 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: Bash shell scripts, BlueBuild (Containerfile + YAML recipes), Fedora Atomic (ostree)
+  Architecture: Custom Fedora Sway Atomic image built via BlueBuild CI. Shell scripts in
+    files/scripts/ and .bluebuild-scripts_*/ for build-time. Config files in files/system/usr/etc/.
+    YAML recipes in recipes/ define module pipeline (dnf, files, script, flatpaks, signing).
+    No application server; this is an OS image build pipeline.
+  Testing: No test infrastructure detected. Shell scripts use #!/usr/bin/env bash or #!/bin/sh.
+    Build validated by BlueBuild GitHub Action (container build succeeds).
+  Style: Bash scripts use set -e. Some scripts use #!/usr/bin/env bash, some #!/bin/sh.
+    Commit style: conventional commits (feat:, fix:, chore: prefixes). No editorconfig or
+    shellcheckrc found. No formatter configured.
+
+rules:
+  proposal:
+    - Include rollback plan for changes affecting image build
+    - Flag any changes to Containerfile or recipe structure as high-risk
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Document which phase (build-time vs runtime) each change affects
+    - Note whether changes require CI rebuild validation
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing shell script patterns (set -e, bash shebang)
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: "docker build ."
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: false
+  runner: null
+  layers:
+    unit: { available: false, tool: null }
+    integration: { available: false, tool: null }
+    e2e: { available: false, tool: null }
+  coverage: { available: false, command: null }
+  quality:
+    linter: { available: false, command: null }
+    type_checker: { available: false, command: null }
+    formatter: { available: false, command: null }
+  note: "No test infrastructure detected. ShellCheck not installed. Strict TDD unavailable without a test runner."
+
+delivery:
+  strategy: ask-on-risk
+  chain_strategy: stacked-to-main
+  review_budget_lines: 400

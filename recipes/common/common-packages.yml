@@ -21,7 +21,7 @@ modules:
     install:
       skip-broken: true 
       packages:
-        - cloudflare-warp 
+        #- cloudflare-warp 
         # power manangment
         #- tlp
     remove:
