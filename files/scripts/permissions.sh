@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Fix permissions on custom scripts in the image overlay
-SCRIPTS_DIR="/usr/bin"
+# Fix permissions on overlay-managed scripts only
+OVERLAY_DIR="${OVERLAY_DIR:-/tmp/files}"
+SCRIPTS_DIR="$OVERLAY_DIR/usr/bin"
+
+if [[ ! -d "$SCRIPTS_DIR" ]]; then
+    echo "Skipping permissions: $SCRIPTS_DIR not found"
+    exit 0
+fi
 
 for script in "$SCRIPTS_DIR"/*; do
-    if [[ -f "$script" && -x "$script" ]]; then
+    [[ -f "$script" ]] || continue
+    if [[ -x "$script" ]]; then
         echo "Permissions OK: $script"
-    elif [[ -f "$script" ]]; then
+    else
         chmod 755 "$script"
         echo "Fixed permissions: $script"
     fi

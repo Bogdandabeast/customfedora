@@ -4,10 +4,8 @@
 set -euo pipefail
 
 # Get the latest RPM download URL from GitHub API
-RPM_URL=$(curl -fsSL https://api.github.com/repos/TibixDev/winboat/releases/latest \
-  | grep "browser_download_url" \
-  | grep ".rpm" \
-  | cut -d '"' -f 4)
+RELEASE_JSON=$(curl -fsSL https://api.github.com/repos/TibixDev/winboat/releases/latest)
+RPM_URL=$(echo "$RELEASE_JSON" | grep "browser_download_url" | grep "\.rpm" | cut -d '"' -f 4 || true)
 
 if [[ -z "$RPM_URL" ]]; then
     echo "ERROR: Could not find RPM download URL for winboat" >&2
