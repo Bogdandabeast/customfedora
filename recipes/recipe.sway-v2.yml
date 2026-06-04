@@ -1,0 +1,107 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+name: sway
+description: My personal Fedora Sericea (Sway Atomic) custom image.
+
+base-image: ghcr.io/ublue-os/sericea-main
+image-version: latest
+
+modules:
+  # Module 1: Files overlay (configs)
+  - type: files
+    files:
+      - source: system
+        destination: /
+
+  # Module 2: DNF with external repos
+  - type: dnf
+    repos:
+      files:
+        - docker-ce.repo
+        - vstudio.repo
+        - zed.repo
+        - cloudflare-warp.repo
+    install:
+      packages:
+        # Dev tooling
+        - distrobox
+        - gh
+        - tealdeer
+        - chezmoi
+        - neovim
+        - tmux
+        - zsh
+        - fish
+        # Terminal
+        - alacritty
+        # Screenshots + OCR
+        - grim
+        - slurp
+        - wl-clipboard
+        - tesseract
+        - tesseract-langpack-eng
+        # Networking
+        - nmap
+        # Scanning
+        - simple-scan
+        - sane-backends-drivers-scanners
+        # Input + mounts
+        - ydotool
+        - cifs-utils
+        - fuse-sshfs
+        # Sway deps (not in base or needed explicitly)
+        - kanshi
+        - playerctl
+        - power-profiles-daemon
+        - jq
+        # External repo packages (repos must be disabled after)
+        - code
+        - zed
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+        - cloudflare-warp
+    remove:
+      packages:
+        - firefox
+        - firefox-langpacks
+
+  # Module 3: Repo isolation (disable external repos)
+  - type: script
+    scripts:
+      - disable-external-repos.sh
+
+  # Module 4: Homebrew + winboat
+  - type: script
+    scripts:
+      - install-brew.sh
+      - downloadlatestwinboatrpm.sh
+
+  # Module 5: Flatpaks
+  - type: default-flatpaks
+    configurations:
+      - notify: true
+        scope: system
+        install:
+          - org.mozilla.firefox
+          - org.gnome.Loupe
+          - org.gimp.GIMP
+          - org.libreoffice.LibreOffice
+          - org.audacityteam.Audacity
+          - org.keepassxc.KeePassXC
+          - io.gitlab.librewolf-community
+          - com.brave.Browser
+      - scope: user
+
+  # Module 6: Systemd services
+  - type: systemd
+    system:
+      enabled:
+        - docker.socket
+        - podman.socket
+        - warp-svc.service
+
+  # Module 7: Signing
+  - type: signing
