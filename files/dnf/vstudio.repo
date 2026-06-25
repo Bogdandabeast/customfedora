@@ -1,4 +1,4 @@
-[code]
+[vscode-custom]
 name=Visual Studio Code
 baseurl=https://packages.microsoft.com/yumrepos/vscode
 enabled=1
