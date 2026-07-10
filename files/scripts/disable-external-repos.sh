@@ -14,12 +14,12 @@ REPOS=(
 for repo in "${REPOS[@]}"; do
     repo_path="/etc/yum.repos.d/${repo}"
     if [[ -f "$repo_path" ]]; then
-        sed -i 's/^enabled=.*/enabled=0/g' "$repo_path"
-        echo "Disabled repo file: $repo"
+        rm -f "$repo_path"
+        echo "Removed repo file: $repo"
     fi
 done
 
-# Disable Copr repos explicitly
+# Disable Copr repos explicitly (backup)
 echo "Disabling Copr repositories..."
 dnf copr disable -y yalter/niri || true
 dnf copr disable -y lionheartp/Hyprland || true
