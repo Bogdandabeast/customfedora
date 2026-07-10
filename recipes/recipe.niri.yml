@@ -1,0 +1,57 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+name: niri
+description: Fedora Atomic with Niri compositor + Noctalia Shell
+
+base-image: ghcr.io/ublue-os/kinoite-main
+image-version: latest
+
+modules:
+  # Module 1: Files overlay (configs)
+  - type: files
+    files:
+      - source: system
+        destination: /
+
+  # Module 2: DNF with external repos
+  - type: dnf
+    repos:
+      files:
+        - niri.repo
+        - noctalia.repo
+    install:
+      packages:
+        - niri
+        - noctalia-git
+        - waybar
+        - mako
+        - kanshi
+        - grim
+        - slurp
+        - wl-clipboard
+        - playerctl
+    remove:
+      packages:
+        - firefox
+        - firefox-langpacks
+
+  # Module 3: Repo isolation (disable external repos)
+  - type: script
+    scripts:
+      - disable-external-repos.sh
+
+  # Module 4: Flatpaks
+  - type: default-flatpaks
+    configurations:
+      - notify: true
+        scope: system
+        install:
+          - org.mozilla.firefox
+          - org.gnome.Loupe
+          - org.gimp.GIMP
+          - org.libreoffice.LibreOffice
+          - com.brave.Browser
+      - scope: user
+
+  # Module 5: Signing
+  - type: signing
