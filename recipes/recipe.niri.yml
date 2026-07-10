@@ -21,15 +21,14 @@ modules:
         - noctalia.repo
     install:
       packages:
-        - niri
-        - noctalia-git
-        - waybar
-        - mako
-        - kanshi
-        - grim
-        - slurp
-        - wl-clipboard
-        - playerctl
+         - niri
+         - noctalia-git
+         - mako
+         - kanshi
+         - grim
+         - slurp
+         - wl-clipboard
+         - playerctl
     remove:
       packages:
         - firefox
