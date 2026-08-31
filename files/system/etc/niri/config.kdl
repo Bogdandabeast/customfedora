@@ -4,6 +4,11 @@
 // notifications, wallpaper, OSD, lock screen, and session menu.
 spawn-at-startup "noctalia"
 
+// Open a terminal (workspace 3) and Brave (workspace 1) at login;
+// the window-rules below place them on their assigned workspaces.
+spawn-at-startup "alacritty"
+spawn-at-startup "flatpak run com.brave.Browser"
+
 binds {
     // Core Noctalia surfaces
     Mod+Space { spawn-sh "noctalia msg panel-toggle launcher"; }
@@ -120,21 +125,35 @@ window-rule {
 
 // Open apps on their assigned workspaces (migrated from Sway `assign`).
 window-rule {
-    match app-id="brave-browser|io.gitlab.librewolf-community"
+    match app-id="^brave-browser$"
     open-on-workspace "1"
 }
 window-rule {
-    match app-id="dev.zed.Zed|code"
+    match app-id=r#"^io\.gitlab\.librewolf-community$"#
+    open-on-workspace "1"
+}
+window-rule {
+    match app-id=r#"^dev\.zed\.Zed$"#
     open-on-workspace "2"
 }
 window-rule {
-    match app-id="Alacritty"
+    match app-id="^code$"
+    open-on-workspace "2"
+}
+window-rule {
+    match app-id="^Alacritty$"
     open-on-workspace "3"
 }
 window-rule {
-    match app-id="com.valvesoftware.Steam|com.spotify.Client"
+    match app-id=r#"^com\.valvesoftware\.Steam$|^com\.spotify\.Client$"#
     open-on-workspace "4"
 }
+
+// Named workspaces: declared so open-on-workspace rules have a target.
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "4"
 
 // Noctalia surfaces request their own blur regions. Disable xray so blur samples
 // the windows behind the surface instead of the wallpaper.
