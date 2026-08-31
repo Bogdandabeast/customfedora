@@ -1,114 +1,142 @@
 # Declarative Noctalia v5 configuration for the Niri image.
 # GUI changes are stored separately in ~/.local/state/noctalia/settings.toml.
 
+[audio]
+enable_overdrive = true
+enable_sounds = true
+
+[backdrop]
+blur_intensity = 0.5
+enabled = true
+tint_intensity = 0.3
+
+[bar]
+order = [ "default" ]
+
+    [bar.default]
+    auto_hide = false
+    background_opacity = 0.92
+    border = "outline"
+    border_width = 1.0
+    capsule = true
+    capsule_fill = "surface_variant"
+    capsule_opacity = 0.9
+    center = [ "group:g1" ]
+    enabled = true
+    end = [ "notifications", "group:g2", "volume", "brightness", "control-center", "session", "keyboard_layout", "warp" ]
+    layer = "top"
+    margin_ends = 0
+    padding = 14
+    position = "top"
+    radius = 0
+    reserve_space = true
+    shadow = true
+    start = [ "launcher", "workspaces", "weather", "clipboard", "tray" ]
+    thickness = 48
+    widget_spacing = 6
+
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_variant"
+        id = "g1"
+        members = [ "media", "clock" ]
+        opacity = 0.9
+        padding = 6.0
+
+        [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "on_primary"
+        id = "g2"
+        members = [ "network", "bluetooth", "battery", "power_profile", "cpu" ]
+        opacity = 0.9
+        padding = 6.0
+
+[calendar]
+enabled = true
+
+[location]
+auto_locate = true
+
+[lockscreen]
+blur_intensity = 0.5
+blurred_desktop = true
+enabled = true
+tint_intensity = 0.3
+
+[nightlight]
+enabled = true
+
+[notification]
+background_opacity = 0.97
+enable_daemon = true
+layer = "top"
+show_actions = true
+show_app_name = true
+
+[osd]
+background_opacity = 0.97
+orientation = "horizontal"
+position = "top_right"
+
+[plugins]
+enabled = [ "levi/warp", "nzlov/daily-wallpaper", "apex077/eyecare" ]
+
 [shell]
-font_family = "JetBrainsMono Nerd Font"
-telemetry_enabled = false
 clipboard_enabled = true
 clipboard_history_max_entries = 100
+font_family = "JetBrainsMono Nerd Font"
 niri_overview_type_to_launch_enabled = false
+polkit_agent = true
+telemetry_enabled = false
 
-[shell.animation]
+    [shell.animation]
+    enabled = true
+    speed = 1.0
+
+    [shell.panel]
+    borders = true
+    clipboard_placement = "floating"
+    control_center_placement = "attached"
+    launcher_placement = "floating"
+    session_placement = "attached"
+    shadow = true
+    transparency_mode = "soft"
+    wallpaper_placement = "attached"
+
+[system.monitor]
+cpu_poll_seconds = 2.0
+disk_poll_seconds = 10.0
 enabled = true
-speed = 1.0
-
-[shell.panel]
-transparency_mode = "soft"
-borders = true
-shadow = true
-launcher_placement = "floating"
-clipboard_placement = "floating"
-control_center_placement = "attached"
-wallpaper_placement = "attached"
-session_placement = "attached"
+memory_poll_seconds = 2.0
+network_poll_seconds = 3.0
 
 [theme]
-mode = "dark"
 builtin = "Catppuccin"
+mode = "dark"
+source = "builtin"
+wallpaper_scheme = "m3-content"
+
+    [theme.templates]
+    builtin_ids = [ "alacritty", "btop", "cava", "emacs", "niri" ]
 
 [wallpaper]
+directory = "/usr/share/backgrounds"
 enabled = true
-fill_mode = "crop"
 fill_color = "surface"
-transition = ["fade", "wipe", "disc"]
+fill_mode = "crop"
+transition = [ "fade", "wipe", "disc" ]
 transition_duration = 1500
 transition_on_startup = false
 
-[wallpaper.default]
-path = "/usr/share/backgrounds/The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg"
+    [wallpaper.default]
+    path = "/usr/share/backgrounds/The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg"
 
-[wallpaper.automation]
-enabled = false
-interval_seconds = 1800
-order = "random"
-recursive = true
-
-[backdrop]
-enabled = true
-blur_intensity = 0.5
-tint_intensity = 0.3
-
-[notification]
-enable_daemon = true
-show_app_name = true
-show_actions = true
-layer = "top"
-background_opacity = 0.97
-
-[osd]
-position = "top_right"
-orientation = "horizontal"
-background_opacity = 0.97
-
-[lockscreen]
-enabled = true
-blurred_desktop = true
-blur_intensity = 0.5
-tint_intensity = 0.3
-
-[system.monitor]
-enabled = true
-cpu_poll_seconds = 2.0
-memory_poll_seconds = 2.0
-network_poll_seconds = 3.0
-disk_poll_seconds = 10.0
-
-[bar]
-order = ["default"]
-
-[bar.default]
-position = "top"
-enabled = true
-auto_hide = false
-reserve_space = true
-layer = "top"
-thickness = 34
-background_opacity = 0.92
-border = "outline"
-border_width = 1.0
-shadow = true
-radius = 12
-margin_ends = 8
-padding = 10
-widget_spacing = 6
-capsule = true
-capsule_fill = "surface_variant"
-capsule_opacity = 0.9
-
-start = ["launcher", "wallpaper", "workspaces"]
-center = ["clock"]
-end = ["media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "power_profile", "control-center", "session"]
-
-[widget.workspaces]
-style = "regular"
-show_labels = true
-label_source = "id"
-labels_only_when_occupied = true
-hide_when_empty = true
-focused_color = "primary"
-occupied_color = "secondary"
-empty_color = "surface_variant"
-urgent_color = "error"
+[widget.battery]
+show_label = true
 
 [widget.clock]
 format = "{:%H:%M}"
@@ -117,16 +145,27 @@ tooltip_format = "{:%A, %B %d, %Y}"
 [widget.media]
 max_length = 320
 
-[widget.notifications]
-hide_when_no_unread = false
-
 [widget.network]
 show_label = true
-vpn_status = "both"
 show_vpn_label = true
+vpn_status = "both"
+
+[widget.notifications]
+hide_when_no_unread = false
 
 [widget.volume]
 show_label = true
 
-[widget.battery]
-show_label = true
+[widget.warp]
+type = "levi/warp:warp"
+
+[widget.workspaces]
+empty_color = "surface_variant"
+focused_color = "primary"
+hide_when_empty = true
+label_source = "id"
+labels_only_when_occupied = true
+occupied_color = "secondary"
+show_labels = true
+style = "regular"
+urgent_color = "error"

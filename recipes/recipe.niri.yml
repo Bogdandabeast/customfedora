@@ -14,10 +14,16 @@ modules:
         destination: /
 
   - type: dnf
+    repos:
+      files:
+        - zed.repo
+        - vstudio.repo
+        - cloudflare-warp.repo
     install:
       packages:
         - niri
         - noctalia
+        - alacritty
         - kanshi
         - xwayland-satellite
         - xdg-desktop-portal
@@ -27,10 +33,29 @@ modules:
         - slurp
         - wl-clipboard
         - playerctl
+        # Editors / dev tooling (external repos)
+        - zed
+        - code
+        # Prereqs for the WinBoat install script
+        - curl
+        - jq
+        # Dependency of the Noctalia warp plugin (provides warp-cli)
+        - cloudflare-warp
     remove:
       packages:
         - firefox
         - firefox-langpacks
+
+  # Install WinBoat from its latest GitHub RPM release
+  - type: script
+    scripts:
+      - downloadlatestwinboatrpm.sh
+
+  # Systemd services (WARP daemon, as in the sway recipe)
+  - type: systemd
+    system:
+      enabled:
+        - warp-svc.service
 
   - type: default-flatpaks
     configurations:
