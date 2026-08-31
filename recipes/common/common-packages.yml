@@ -22,6 +22,8 @@ modules:
       skip-broken: true
       packages:
         - cloudflare-warp
+        # PAM module to auto-unlock the GNOME keyring at login (plasmalogin already references it)
+        - gnome-keyring-pam
         # power manangment
         #- tlp
     remove:

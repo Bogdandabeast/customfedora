@@ -42,6 +42,8 @@ modules:
         - jq
         # Dependency of the Noctalia warp plugin (provides warp-cli)
         - cloudflare-warp
+        # PAM module to auto-unlock the GNOME keyring at login (used by plasmalogin)
+        - gnome-keyring-pam
     remove:
       packages:
         - firefox
