@@ -18,8 +18,9 @@ modules:
       files:
         - zed.repo
         - vstudio.repo
-        - cloudflare-warp.repo
+        - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
+      skip-broken: true
       packages:
         - niri
         - noctalia
