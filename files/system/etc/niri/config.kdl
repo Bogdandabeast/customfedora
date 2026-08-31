@@ -6,8 +6,10 @@ spawn-at-startup "noctalia"
 
 // Open a terminal (workspace 3) and Brave (workspace 1) at login;
 // the window-rules below place them on their assigned workspaces.
+// Brave is launched via the shell with a short delay so the Flatpak
+// runtime is mounted before it starts.
 spawn-at-startup "alacritty"
-spawn-at-startup "flatpak run com.brave.Browser"
+spawn-sh-at-startup "sleep 2 && flatpak run com.brave.Browser"
 
 binds {
     // Core Noctalia surfaces
