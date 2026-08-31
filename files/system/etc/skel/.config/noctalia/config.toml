@@ -1,0 +1,132 @@
+# Declarative Noctalia v5 configuration for the Niri image.
+# GUI changes are stored separately in ~/.local/state/noctalia/settings.toml.
+
+[shell]
+font_family = "JetBrainsMono Nerd Font"
+telemetry_enabled = false
+clipboard_enabled = true
+clipboard_history_max_entries = 100
+niri_overview_type_to_launch_enabled = false
+
+[shell.animation]
+enabled = true
+speed = 1.0
+
+[shell.panel]
+transparency_mode = "soft"
+borders = true
+shadow = true
+launcher_placement = "floating"
+clipboard_placement = "floating"
+control_center_placement = "attached"
+wallpaper_placement = "attached"
+session_placement = "attached"
+
+[theme]
+mode = "dark"
+builtin = "Catppuccin"
+
+[wallpaper]
+enabled = true
+fill_mode = "crop"
+fill_color = "surface"
+transition = ["fade", "wipe", "disc"]
+transition_duration = 1500
+transition_on_startup = false
+
+[wallpaper.default]
+path = "/usr/share/backgrounds/The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg"
+
+[wallpaper.automation]
+enabled = false
+interval_seconds = 1800
+order = "random"
+recursive = true
+
+[backdrop]
+enabled = true
+blur_intensity = 0.5
+tint_intensity = 0.3
+
+[notification]
+enable_daemon = true
+show_app_name = true
+show_actions = true
+layer = "top"
+background_opacity = 0.97
+
+[osd]
+position = "top_right"
+orientation = "horizontal"
+background_opacity = 0.97
+
+[lockscreen]
+enabled = true
+blurred_desktop = true
+blur_intensity = 0.5
+tint_intensity = 0.3
+
+[system.monitor]
+enabled = true
+cpu_poll_seconds = 2.0
+memory_poll_seconds = 2.0
+network_poll_seconds = 3.0
+disk_poll_seconds = 10.0
+
+[bar]
+order = ["default"]
+
+[bar.default]
+position = "top"
+enabled = true
+auto_hide = false
+reserve_space = true
+layer = "top"
+thickness = 34
+background_opacity = 0.92
+border = "outline"
+border_width = 1.0
+shadow = true
+radius = 12
+margin_ends = 8
+padding = 10
+widget_spacing = 6
+capsule = true
+capsule_fill = "surface_variant"
+capsule_opacity = 0.9
+
+start = ["launcher", "wallpaper", "workspaces"]
+center = ["clock"]
+end = ["media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "power_profile", "control-center", "session"]
+
+[widget.workspaces]
+style = "regular"
+show_labels = true
+label_source = "id"
+labels_only_when_occupied = true
+hide_when_empty = true
+focused_color = "primary"
+occupied_color = "secondary"
+empty_color = "surface_variant"
+urgent_color = "error"
+
+[widget.clock]
+format = "{:%H:%M}"
+tooltip_format = "{:%A, %B %d, %Y}"
+
+[widget.media]
+max_length = 320
+
+[widget.notifications]
+hide_when_no_unread = false
+
+[widget.network]
+show_label = true
+vpn_status = "both"
+show_vpn_label = true
+
+[widget.volume]
+show_label = true
+
+[widget.battery]
+show_label = true

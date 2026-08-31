@@ -1,0 +1,148 @@
+// Niri configuration for the Noctalia desktop shell.
+
+// Start Noctalia once per session; it provides the bar, launcher,
+// notifications, wallpaper, OSD, lock screen, and session menu.
+spawn-at-startup "noctalia"
+
+binds {
+    // Core Noctalia surfaces
+    Mod+Space { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+S { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Mod+Comma { spawn-sh "noctalia msg settings-toggle"; }
+    Mod+Tab { spawn-sh "noctalia msg window-switcher"; }
+    Mod+W { spawn-sh "noctalia msg panel-toggle wallpaper"; }
+    Mod+E { spawn-sh "noctalia msg panel-toggle session"; }
+    Mod+V { spawn-sh "noctalia msg panel-toggle clipboard"; }
+    Mod+Shift+L allow-when-locked=true { spawn-sh "noctalia msg session lock"; }
+
+    // Terminal and compositor controls
+    Mod+Return { spawn "alacritty"; }
+    Mod+Q repeat=false { close-window; }
+    Mod+Shift+E { quit; }
+    Mod+O repeat=false { toggle-overview; }
+    Mod+Escape { toggle-keyboard-shortcuts-inhibit; }
+
+    // Focus and move columns/windows
+    Mod+Left { focus-column-left; }
+    Mod+Down { focus-window-down; }
+    Mod+Up { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H { focus-column-left; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+    Mod+L { focus-column-right; }
+
+    Mod+Ctrl+Left { move-column-left; }
+    Mod+Ctrl+Down { move-window-down; }
+    Mod+Ctrl+Up { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+
+    // Window sizing and layout
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+Shift+Space { toggle-window-floating; }
+    Mod+C { center-column; }
+
+    // Workspace navigation
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+0 { focus-workspace 10; }
+
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+    Mod+Ctrl+0 { move-column-to-workspace 10; }
+
+    // Audio and brightness through Noctalia
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
+    XF86AudioPlay allow-when-locked=true { spawn-sh "noctalia msg media toggle"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "noctalia msg media previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "noctalia msg media next"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+}
+
+// General window appearance.
+window-rule {
+    geometry-corner-radius 20
+    clip-to-geometry true
+}
+
+// Keep Noctalia settings floating and centered at a useful size.
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+    default-column-width { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+// Noctalia surfaces request their own blur regions. Disable xray so blur samples
+// the windows behind the surface instead of the wallpaper.
+layer-rule {
+    match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
+    background-effect {
+        xray false
+    }
+}
+
+// Use Noctalia's blurred wallpaper as Niri's overview backdrop.
+layer-rule {
+    match namespace="^noctalia-backdrop"
+    place-within-backdrop true
+}
+
+// Allow notification actions and window activation from Noctalia.
+debug {
+    honor-xdg-activation-with-invalid-serial
+}
+
+// Input defaults.
+input {
+    keyboard {
+        xkb {
+            layout "us"
+            options "ctrl:nocaps"
+        }
+        numlock
+    }
+
+    touchpad {
+        tap
+        natural-scroll
+        dwt
+    }
+
+    focus-follows-mouse max-scroll-amount="0%"
+    workspace-auto-back-and-forth
+}
+
+// Transparent workspace background lets Noctalia's wallpaper/backdrop show
+// through in the overview.
+layout {
+    gaps 16
+    background-color "transparent"
+}
+
+overview {
+    workspace-shadow {
+        off
+    }
+}
