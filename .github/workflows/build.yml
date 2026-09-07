@@ -22,7 +22,7 @@ jobs:
     name: Validate recipes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install BlueBuild CLI
         run: bash <(curl -s https://raw.githubusercontent.com/blue-build/cli/main/install.sh)
