@@ -103,6 +103,19 @@ modules:
         - docker-buildx-plugin
         - docker-compose-plugin
         - podman-compose
+        # Virtualization — full VM stack (libvirt + QEMU device support)
+        - virt-manager
+        - libvirt-daemon-driver-network
+        - libvirt-daemon-driver-nodedev
+        - libvirt-daemon-driver-qemu
+        - libvirt-daemon-driver-storage-core
+        - qemu-audio-spice
+        - qemu-char-spice
+        - qemu-device-display-qxl
+        - qemu-device-display-virtio-gpu
+        - qemu-device-display-virtio-vga
+        - qemu-device-usb-redirect
+        - qemu-system-x86-core
         # Script engine for the custom plymouth boot splash (bogdan theme)
         - plymouth-plugin-script
     remove:
@@ -122,6 +135,8 @@ modules:
   # brew-install-fish.service / brew-install-cli.service (see files/system).
   - type: brew
     brew-analytics: false
+
+  - type: justfiles
 
   # Systemd services (WARP daemon + container sockets, as in the sway recipe)
   - type: systemd
