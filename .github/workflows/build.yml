@@ -24,15 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
       - name: Install BlueBuild CLI
         run: curl -fsSL https://raw.githubusercontent.com/blue-build/cli/main/install.sh | bash
-
-      - name: Install project deps (bun)
-        run: bun install --frozen-lockfile
 
       - name: Validate all recipes
         run: |
