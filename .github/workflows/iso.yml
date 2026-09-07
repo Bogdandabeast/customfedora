@@ -41,9 +41,6 @@ jobs:
           tag_name: isos
           name: Weekly ISOs
           draft: false
-          preprint: true
+          prerelease: true
           generate_release_notes: false
-          # Keep a single "isos" release and overwrite its assets each run so
-          # the repo doesn't accumulate a new release per ISO build.
-          # replace assént con el que ya existe
-          # (action-gh-release reuses an existing release when tag_name matches)
+          overwrite_files: true
