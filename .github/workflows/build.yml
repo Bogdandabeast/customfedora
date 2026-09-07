@@ -28,7 +28,10 @@ jobs:
         with:
           bun-version: 1.3.4
 
-      - name: Install project CLI tools (bun)
+      - name: Install BlueBuild CLI
+        run: curl -fsSL https://raw.githubusercontent.com/blue-build/cli/main/install.sh | bash
+
+      - name: Install project deps (bun)
         run: bun install --frozen-lockfile
 
       - name: Validate all recipes
@@ -37,7 +40,7 @@ jobs:
           # Keep in sync with the bluebuild job matrix below.
           for recipe in recipe.niri.yml; do
             echo "==> Validating recipes/${recipe}"
-            bun run validate
+            bluebuild validate "./recipes/${recipe}"
           done
 
   bluebuild:
@@ -70,3 +73,5 @@ jobs:
           maximize_build_space: true
           # cache build layers in the registry to speed up repeat builds
           use_cache: true
+          use_unstable_cli: false
+          verify_install: false

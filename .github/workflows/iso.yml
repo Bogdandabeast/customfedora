@@ -27,7 +27,10 @@ jobs:
         with:
           bun-version: 1.3.4
 
-      - name: Install project CLI tools (bun)
+      - name: Install BlueBuild CLI
+        run: curl -fsSL https://raw.githubusercontent.com/blue-build/cli/main/install.sh | bash
+
+      - name: Install project deps (bun)
         run: bun install --frozen-lockfile
 
       - name: Generate ISO from recipe
