@@ -26,16 +26,6 @@ jobs:
       - name: Install BlueBuild CLI
         run: bash <(curl -s https://raw.githubusercontent.com/blue-build/cli/main/install.sh)
 
-      - name: Build image (no push)
-        run: |
-          set -euo pipefail
-          # Build the image locally. Do NOT push, so we don't create a new
-          # registry tag every week (use the image that already exists in GHCR
-          # from the bluebuild workflow, or build locally with this recipe).
-          bluebuild build "./recipes/${{ matrix.recipe }}" \
-            --no-push \
-            --registry ghcr.io/${{ github.repository_owner }}
-
       - name: Generate ISO from recipe
         run: |
           set -euo pipefail
