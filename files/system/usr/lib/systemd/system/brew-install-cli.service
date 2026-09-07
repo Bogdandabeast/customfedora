@@ -1,0 +1,23 @@
+[Unit]
+Description=Install CLI tools (lazygit, lazydocker, bun) via Homebrew
+# Same pattern as brew-install-fish.service: only meaningful once brew exists
+# (brew-setup copies it to /home/linuxbrew on first boot), and ordered after
+# the fish install so two brew installs never race each other.
+After=brew-setup.service brew-install-fish.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/home/linuxbrew/.linuxbrew/bin/brew
+# Once lazygit is installed, don't re-run on later boots.
+ConditionPathExists=!/home/linuxbrew/.linuxbrew/bin/lazygit
+
+[Service]
+Type=oneshot
+User=1000
+# brew refuses to run as root and needs its own env (mirrors brew-update.service)
+Environment=HOMEBREW_CELLAR=/home/linuxbrew/.linuxbrew/Cellar
+Environment=HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
+Environment=HOMEBREW_REPOSITORY=/home/linuxbrew/.linuxbrew/Homebrew
+Environment=HOMEBREW_NO_AUTO_UPDATE=1
+ExecStart=/usr/bin/bash -c "/home/linuxbrew/.linuxbrew/bin/brew install lazygit lazydocker bun"
+
+[Install]
+WantedBy=multi-user.target

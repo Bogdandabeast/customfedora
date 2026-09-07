@@ -3,7 +3,11 @@
 name: niri
 description: Fedora Atomic with Niri compositor and Noctalia Shell
 
-base-image: ghcr.io/ublue-os/kinoite-main
+# ublue base-main: minimal Fedora Atomic (no desktop environment).
+# Everything the Niri/Noctalia desktop needs that Kinoite used to provide
+# implicitly (login manager, keyring, file manager, gvfs, power profiles,
+# xdg-user-dirs, Qt Wayland support) is installed explicitly below.
+base-image: ghcr.io/ublue-os/base-main
 image-version: latest
 
 modules:
@@ -35,6 +39,52 @@ modules:
         - slurp
         - wl-clipboard
         - playerctl
+        # Login manager (ublue base has no display manager; sddm self-enables
+        # and Conflicts with getty@tty1). sddm-themes provides the maldives
+        # theme we restyle with the dracula wallpaper (see setsddmtheming.sh).
+        - sddm
+        - sddm-themes
+        - qt5-qtgraphicaleffects
+        - qt5-qtquickcontrols2
+        - qt5-qtsvg
+        # File manager + mounting stack (Kinoite shipped Dolphin; base has none).
+        # Nautilus matches the GTK/GNOME portal + keyring stack; gvfs provides
+        # trash, automount (udisks2 is already in base) and remote mounts.
+        - nautilus
+        - file-roller
+        - gvfs
+        - gvfs-archive
+        - gvfs-fuse
+        - gvfs-mtp
+        - gvfs-nfs
+        - gvfs-smb
+        # GNOME keyring daemon (pam module already below; SDDM's PAM service
+        # shipped by Fedora already hooks pam_gnome_keyring for auto-unlock)
+        - gnome-keyring
+        # Power profiles for the Noctalia power_profile widget (Kinoite shipped
+        # power-profiles-daemon; base does not; it self-enables on install)
+        - power-profiles-daemon
+        # Creates ~/Pictures etc. so niri's screenshot path works out of the box
+        - xdg-user-dirs
+        # Qt Wayland platform for any RPM Qt apps (greeter/shell are fine without)
+        - qt5-qtwayland
+        - qt6-qtwayland
+        # Volume GUI fallback (Noctalia's volume IPC is unreliable with BT sinks)
+        - pavucontrol
+        # CLI tools migrated from Homebrew — all available as Fedora RPMs
+        # (verified on F44), so they're system-wide and update with the image.
+        - gh
+        - neovim
+        - tmux
+        - fzf
+        - bat
+        - btop
+        - fastfetch
+        - zoxide
+        - yt-dlp
+        - fd-find
+        - ripgrep
+        - distrobox
         # Editors / dev tooling (external repos)
         - zed
         - code
@@ -43,7 +93,8 @@ modules:
         - jq
         # Dependency of the Noctalia warp plugin (provides warp-cli)
         - cloudflare-warp
-        # PAM module to auto-unlock the GNOME keyring at login (used by plasmalogin)
+        # PAM module that auto-unlocks the GNOME keyring at SDDM login
+        # (Fedora's /etc/pam.d/sddm already references pam_gnome_keyring)
         - gnome-keyring-pam
         # Container engine (docker-ce repo; same stack as the sway recipe)
         - docker-ce
@@ -60,12 +111,15 @@ modules:
         - firefox-langpacks
 
   # Install WinBoat from its latest GitHub RPM release
+  # and restyle the SDDM maldives greeter (white text over our dark wallpaper)
   - type: script
     scripts:
       - downloadlatestwinboatrpm.sh
+      - setsddmtheming.sh
 
   # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
-  # fish is then installed from brew by brew-install-fish.service (see files/system).
+  # fish, lazygit, lazydocker and bun are then installed from brew by
+  # brew-install-fish.service / brew-install-cli.service (see files/system).
   - type: brew
     brew-analytics: false
 
@@ -75,19 +129,33 @@ modules:
       enabled:
         - warp-svc.service
         - brew-install-fish.service
+        - brew-install-cli.service
         - docker.socket
         - podman.socket
+        # Creates the sddm user at boot (user/group creation doesn't survive
+        # ostree image builds; see ublue-os/main#224). sddm.service itself is
+        # enabled by the package's own scriptlet.
+        - sddm-boot.service
 
   - type: default-flatpaks
     configurations:
       - notify: true
         scope: system
         install:
-          - org.mozilla.firefox
-          - org.gnome.Loupe
-          - org.gimp.GIMP
-          - org.libreoffice.LibreOffice
           - com.brave.Browser
+          # Referenced by the niri config (shortcut + window rules)
+          - io.gitlab.librewolf-community
+          - com.valvesoftware.Steam
+          # Multimedia
+          - org.videolan.VLC
+          - com.dec05eba.gpu_screen_recorder
+          # Security / tools
+          - org.keepassxc.KeePassXC
+          - com.github.tchx84.Flatseal
+          - io.github.flattool.Warehouse
+          # Gaming
+          - com.heroicgameslauncher.hgl
+          - ru.linux_gaming.PortProton
       - scope: user
 
   # Bake the custom plymouth theme (bogdan) into the initramfs
