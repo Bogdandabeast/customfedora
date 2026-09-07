@@ -52,6 +52,8 @@ modules:
         - docker-buildx-plugin
         - docker-compose-plugin
         - podman-compose
+        # Script engine for the custom plymouth boot splash (bogdan theme)
+        - plymouth-plugin-script
     remove:
       packages:
         - firefox
@@ -87,5 +89,8 @@ modules:
           - org.libreoffice.LibreOffice
           - com.brave.Browser
       - scope: user
+
+  # Bake the custom plymouth theme (bogdan) into the initramfs
+  - type: initramfs
 
   - type: signing

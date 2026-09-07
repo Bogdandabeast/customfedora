@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Bogdan
+Description=Photo of Bogdan centered on a black background (replaces the Fedora logo)
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/bogdan
+ScriptFile=/usr/share/plymouth/themes/bogdan/bogdan.script

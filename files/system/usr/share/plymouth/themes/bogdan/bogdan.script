@@ -1,0 +1,121 @@
+# Bogdan boot splash: photo centered on a black background.
+# Includes a password dialog for LUKS disk encryption.
+# Based on the "basic" template from HerbFargus/plymouth-themes (GPL-2.0+).
+
+screen.w = Window.GetWidth();
+screen.h = Window.GetHeight();
+
+# --- Fullscreen background (1920x1080 canvas: black + centered photo) ---
+# Scale the canvas to cover the screen, keeping the aspect ratio.
+bg.image = Image("background.png");
+bg.screen.ratio = screen.h / screen.w;
+bg.image.ratio = bg.image.GetHeight() / bg.image.GetWidth();
+
+if (bg.screen.ratio > bg.image.ratio)
+  bg.scale = screen.h / bg.image.GetHeight();
+else
+  bg.scale = screen.w / bg.image.GetWidth();
+
+bg.scaled = bg.image.Scale(bg.image.GetWidth() * bg.scale,
+                           bg.image.GetHeight() * bg.scale);
+bg.sprite = Sprite(bg.scaled);
+bg.sprite.SetX(screen.w / 2 - bg.scaled.GetWidth() / 2);
+bg.sprite.SetY(screen.h / 2 - bg.scaled.GetHeight() / 2);
+bg.sprite.SetZ(-10000);
+
+# --- Password dialog (disk encryption) ---------------------------------
+dlg.box.image  = Image("box.png");
+dlg.lock.image = Image("lock.png");
+dlg.entry.image = Image("entry.png");
+dlg.bullet.image = Image("bullet.png");
+
+# Dialog lives in the lower part of the screen, clear of the centered photo.
+dlg.y = screen.h * 0.86;
+
+fun dlg.setopacity (opacity)
+  {
+    dlg.box.sprite.SetOpacity(opacity);
+    dlg.lock.sprite.SetOpacity(opacity);
+    dlg.entry.sprite.SetOpacity(opacity);
+    for (i = 0; dlg.bullet[i]; i++)
+      dlg.bullet[i].sprite.SetOpacity(opacity);
+  }
+
+fun dlg.build ()
+  {
+    dlg.box.sprite = Sprite(dlg.box.image);
+    dlg.box.x = screen.w / 2 - dlg.box.image.GetWidth() / 2;
+    dlg.box.y = dlg.y - dlg.box.image.GetHeight() / 2;
+    dlg.box.z = 10000;
+    dlg.box.sprite.SetPosition(dlg.box.x, dlg.box.y, dlg.box.z);
+
+    dlg.lock.sprite = Sprite(dlg.lock.image);
+    dlg.lock.x = dlg.box.x + dlg.box.image.GetWidth() / 2 -
+                 (dlg.lock.image.GetWidth() + dlg.entry.image.GetWidth()) / 2;
+    dlg.lock.y = dlg.box.y + dlg.box.image.GetHeight() / 2 -
+                 dlg.lock.image.GetHeight() / 2;
+    dlg.lock.z = dlg.box.z + 1;
+    dlg.lock.sprite.SetPosition(dlg.lock.x, dlg.lock.y, dlg.lock.z);
+
+    dlg.entry.sprite = Sprite(dlg.entry.image);
+    dlg.entry.x = dlg.lock.x + dlg.lock.image.GetWidth();
+    dlg.entry.y = dlg.box.y + dlg.box.image.GetHeight() / 2 -
+                  dlg.entry.image.GetHeight() / 2;
+    dlg.entry.z = dlg.box.z + 1;
+    dlg.entry.sprite.SetPosition(dlg.entry.x, dlg.entry.y, dlg.entry.z);
+
+    dlg.setopacity(1);
+  }
+
+fun dlg.password (prompt, count)
+  {
+    if (!dlg.box.sprite)
+      dlg.build();
+    else
+      dlg.setopacity(1);
+
+    for (i = 0; dlg.bullet[i] || i < count; i++)
+      {
+        if (!dlg.bullet[i])
+          {
+            dlg.bullet[i].sprite = Sprite(dlg.bullet.image);
+            dlg.bullet[i].x = dlg.entry.x + i * dlg.bullet.image.GetWidth();
+            dlg.bullet[i].y = dlg.entry.y +
+                              dlg.entry.image.GetHeight() / 2 -
+                              dlg.bullet.image.GetHeight() / 2;
+            dlg.bullet[i].z = dlg.entry.z + 1;
+            dlg.bullet[i].sprite.SetPosition(dlg.bullet[i].x,
+                                             dlg.bullet[i].y,
+                                             dlg.bullet[i].z);
+          }
+        if (i < count)
+          dlg.bullet[i].sprite.SetOpacity(1);
+        else
+          dlg.bullet[i].sprite.SetOpacity(0);
+      }
+  }
+
+fun dlg.normal ()
+  {
+    if (dlg.box.sprite)
+      dlg.setopacity(0);
+    msg.sprite.SetOpacity(0);
+  }
+
+Plymouth.SetDisplayPasswordFunction(dlg.password);
+Plymouth.SetDisplayNormalFunction(dlg.normal);
+
+# --- Boot messages (rare with quiet boot, used by e.g. update screens) ---
+msg.sprite = Sprite();
+
+fun msg.show (text)
+  {
+    msg.image = Image.Text(text, 1, 1, 1);
+    msg.sprite.SetImage(msg.image);
+    msg.sprite.SetX(screen.w / 2 - msg.image.GetWidth() / 2);
+    msg.sprite.SetY(screen.h * 0.12);
+    msg.sprite.SetZ(10001);
+    msg.sprite.SetOpacity(1);
+  }
+
+Plymouth.SetMessageFunction(msg.show);
