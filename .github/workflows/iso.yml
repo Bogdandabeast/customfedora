@@ -23,8 +23,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install BlueBuild CLI
-        run: bash <(curl -s https://raw.githubusercontent.com/blue-build/cli/main/install.sh)
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.4
+
+      - name: Install project CLI tools (bun)
+        run: bun install --frozen-lockfile
 
       - name: Generate ISO from recipe
         run: |
