@@ -1,0 +1,19 @@
+{
+  "name": "customfedora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BlueBuild recipes for custom Fedora Atomic images",
+  "type": "module",
+  "scripts": {
+    "test": "bun run validate",
+    "validate": "bluebuild validate ./recipes/recipe.niri.yml && bluebuild validate ./recipes/recipe.yml",
+    "generate": "bluebuild generate ./recipes/recipe.niri.yml -o Containerfile",
+    "build": "PATH=/usr/local/bin:/usr/bin:/bin:$PATH bluebuild build ./recipes/recipe.niri.yml",
+    "rebase": "PATH=/usr/local/bin:/usr/bin:/bin:$PATH bluebuild switch ./recipes/recipe.niri.yml",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  },
+  "packageManager": "bun@1.3.4"
+}

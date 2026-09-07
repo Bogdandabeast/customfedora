@@ -1,0 +1,9 @@
+# Validate recipes before committing so a broken recipe never reaches CI.
+# Requires the bluebuild CLI (present on BlueBuild-built images); skips
+# gracefully if it's missing so the hook never blocks other work.
+if ! command -v bluebuild >/dev/null 2>&1; then
+  echo "pre-commit: 'bluebuild' not found, skipping recipe validation"
+  exit 0
+fi
+
+bun run validate

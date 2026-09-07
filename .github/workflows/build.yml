@@ -15,8 +15,30 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 jobs:
+  # Fast recipe validation: catches broken recipes in seconds, before the
+  # (much slower) image build runs. Runs bluebuild validate on every recipe
+  # that appears in the bluebuild matrix below.
+  validate:
+    name: Validate recipes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install BlueBuild CLI
+        run: bash <(curl -s https://raw.githubusercontent.com/blue-build/cli/main/install.sh)
+
+      - name: Validate all recipes
+        run: |
+          set -euo pipefail
+          # Keep in sync with the bluebuild job matrix below.
+          for recipe in recipe.yml recipe.niri.yml; do
+            echo "==> Validating recipes/${recipe}"
+            bluebuild validate "./recipes/${recipe}"
+          done
+
   bluebuild:
     name: Build Custom Image
+    needs: validate # don't waste a long build on a broken recipe
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,7 +55,7 @@ jobs:
     steps:
       # the build is fully handled by the reusable github action
       - name: Build Custom Image
-        uses: blue-build/github-action@v1.11
+        uses: blue-build/github-action@v1.12.0
         with:
           recipe: ${{ matrix.recipe }}
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
@@ -42,3 +64,5 @@ jobs:
 
           # enabled by default, disable if your image is small and you want faster builds
           maximize_build_space: true
+          # cache build layers in the registry to speed up repeat builds
+          use_cache: true
