@@ -151,6 +151,8 @@ modules:
         # ostree image builds; see ublue-os/main#224). sddm.service itself is
         # enabled by the package's own scriptlet.
         - sddm-boot.service
+        # libvirt daemon (needed by virt-manager; group setup is in vm-setup.just)
+        - libvirtd.service
 
   - type: default-flatpaks
     configurations:
