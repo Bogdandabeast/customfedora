@@ -18,6 +18,7 @@ modules:
       files:
         - zed.repo
         - vstudio.repo
+        - docker-ce.repo
         - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
     install:
       skip-broken: true
@@ -44,6 +45,13 @@ modules:
         - cloudflare-warp
         # PAM module to auto-unlock the GNOME keyring at login (used by plasmalogin)
         - gnome-keyring-pam
+        # Container engine (docker-ce repo; same stack as the sway recipe)
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+        - podman-compose
     remove:
       packages:
         - firefox
@@ -54,11 +62,19 @@ modules:
     scripts:
       - downloadlatestwinboatrpm.sh
 
-  # Systemd services (WARP daemon, as in the sway recipe)
+  # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
+  # fish is then installed from brew by brew-install-fish.service (see files/system).
+  - type: brew
+    brew-analytics: false
+
+  # Systemd services (WARP daemon + container sockets, as in the sway recipe)
   - type: systemd
     system:
       enabled:
         - warp-svc.service
+        - brew-install-fish.service
+        - docker.socket
+        - podman.socket
 
   - type: default-flatpaks
     configurations:

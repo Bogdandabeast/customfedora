@@ -1,0 +1,6 @@
+# Alacritty default config for new users (via /etc/skel).
+# Noctalia's apply.sh adds the theme import on first login.
+# Launch fish by default instead of bash (fish is installed via Homebrew,
+# see brew-install-fish.service in the niri recipe).
+[terminal.shell]
+program = "/home/linuxbrew/.linuxbrew/bin/fish"

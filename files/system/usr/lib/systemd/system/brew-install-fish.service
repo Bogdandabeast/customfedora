@@ -1,0 +1,26 @@
+[Unit]
+Description=Install fish shell via Homebrew
+# Only meaningful once brew exists (brew-setup copies it to /home/linuxbrew
+# on first boot). If brew is already present (e.g. pre-existing install),
+# brew-setup is skipped but this still runs to ensure fish is installed.
+# After= only (no Requires=): when brew-setup is skipped by its own conditions
+# systemd counts that as a failed activation, which Requires= would propagate
+# and cancel this unit. brew-setup is already enabled by the brew module.
+After=brew-setup.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/home/linuxbrew/.linuxbrew/bin/brew
+# Once fish is installed, don't re-run on later boots.
+ConditionPathExists=!/home/linuxbrew/.linuxbrew/bin/fish
+
+[Service]
+Type=oneshot
+User=1000
+# brew refuses to run as root and needs its own env (mirrors brew-update.service)
+Environment=HOMEBREW_CELLAR=/home/linuxbrew/.linuxbrew/Cellar
+Environment=HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
+Environment=HOMEBREW_REPOSITORY=/home/linuxbrew/.linuxbrew/Homebrew
+Environment=HOMEBREW_NO_AUTO_UPDATE=1
+ExecStart=/usr/bin/bash -c "/home/linuxbrew/.linuxbrew/bin/brew install fish"
+
+[Install]
+WantedBy=multi-user.target
