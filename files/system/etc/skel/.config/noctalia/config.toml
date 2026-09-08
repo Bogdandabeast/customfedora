@@ -160,7 +160,7 @@ show_label = true
 type = "levi/warp:warp"
 
 [widget.lid-mode]
-# Indicador del modo de tapa: se regenera por /usr/local/bin/noctalia-lid-mode-sync.sh
+# Indicador del modo de tapa: se regenera por /usr/bin/noctalia-lid-mode-sync.sh
 # Valores: "hibernate on" (suspend-then-hibernate) / "hibernate off" (solo bloquea)
 type = "custom_button"
 glyph = "help"

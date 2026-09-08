@@ -201,7 +201,7 @@ setup-lid-lock:
         echo "   ℹ︎  No se detectó sensor de tapa en /proc/acpi/button/lid (normal en desktop/VM)."
     fi
     # Navbar Noctalia → hibernate off
-    /usr/local/bin/noctalia-lid-mode-sync.sh 2>/dev/null || true
+    /usr/bin/noctalia-lid-mode-sync.sh 2>/dev/null || true
 
     if [[ $FAIL -eq 0 ]]; then
         echo

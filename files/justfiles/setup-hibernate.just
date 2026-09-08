@@ -152,7 +152,7 @@ setup-hibernate:
     fi
 
     # Navbar Noctalia → hibernate on
-    /usr/local/bin/noctalia-lid-mode-sync.sh 2>/dev/null || true
+    /usr/bin/noctalia-lid-mode-sync.sh 2>/dev/null || true
 
     echo
     if [[ $FAIL -eq 0 ]]; then

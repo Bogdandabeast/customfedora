@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/noctalia-lid-mode-sync.sh
+ExecStart=/usr/bin/noctalia-lid-mode-sync.sh
 
 [Install]
 WantedBy=graphical-session.target
