@@ -38,8 +38,8 @@ jobs:
         id: version
         run: |
           set -euo pipefail
-          token=$(curl -fsS "https://ghcr.io/token?scope=repository:bogdandabeast/customfedora:pull" | python3 -c "import json,sys;print(json.load(sys.stdin)['token'])")
-          tags=$(curl -fsS -H "Authorization: Bearer $token" "https://ghcr.io/v2/bogdandabeast/customfedora/tags/list")
+          token=$(curl -fsS "https://ghcr.io/token?scope=repository:bogdandabeast/niri:pull" | python3 -c "import json,sys;print(json.load(sys.stdin)['token'])")
+          tags=$(curl -fsS -H "Authorization: Bearer $token" "https://ghcr.io/v2/bogdandabeast/niri/tags/list")
           ver=$(printf '%s' "$tags" | grep -oE '[0-9]{8}-[0-9]+' | sed -E 's/^.*-//' | sort -n | tail -1)
           echo "Detected Fedora major version: ${ver:-44}"
           echo "fedora=${ver:-44}" >> "$GITHUB_OUTPUT"
@@ -49,7 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           FEDORA="${{ steps.version.outputs.fedora }}"
-          IMG_REF="ghcr.io/bogdandabeast/customfedora:latest"
+          IMG_REF="ghcr.io/bogdandabeast/niri:latest"        # image package = recipe name
           R="${{ matrix.recipe }}"
           FLAVOR="${R#*.}"            # recipe.niri.yml -> niri
           ISO="${FLAVOR%.yml}-netinst.iso"
@@ -99,7 +99,7 @@ jobs:
               xorriso -osirrox on -indev results/images/boot.iso \
                 -extract /images/install.img /tmp/install.img >/dev/null 2>&1
               unsquashfs -quiet -d /tmp/root /tmp/install.img usr/share/anaconda/interactive-defaults.ks
-              if grep -q "ostreecontainer --url=ghcr.io/bogdandabeast/customfedora:latest" \
+              if grep -q "ostreecontainer --url=ghcr.io/bogdandabeast/niri:latest" \
                 /tmp/root/usr/share/anaconda/interactive-defaults.ks; then
                 echo "Kickstart override verified: installs image from GHCR"
               else
