@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate ISO from recipe
         run: |
-          set -euo pipefail
+          set -uo pipefail
 
           sudo bluebuild generate-iso \
             --iso-name "${{ matrix.recipe }}.iso" \
