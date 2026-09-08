@@ -152,6 +152,9 @@ modules:
       - notify: true
         scope: system
         install:
+          # Flatpaks installed at first boot (boot-install) instead of image build
+          # to keep the ISO size down. They update with the system but are not
+          # part of the base image layers.
           - com.brave.Browser
           # Referenced by the niri config (shortcut + window rules)
           - io.gitlab.librewolf-community
@@ -166,4 +169,5 @@ modules:
           # Gaming
           - com.heroicgameslauncher.hgl
           - ru.linux_gaming.PortProton
+        boot-install: true
       - scope: user
