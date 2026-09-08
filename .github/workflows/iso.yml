@@ -1,4 +1,4 @@
-name: bluebuild-iso
+name: bluebuild-iso-netinst
 on:
   schedule:
     - cron: "00 07 * * 0" # Sundays 07:00 UTC — a day after the weekly image build
@@ -10,8 +10,10 @@ concurrency:
 
 jobs:
   iso:
-    name: Build ISO from recipe
+    name: Build netinst ISO
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload release asset
     strategy:
       fail-fast: false
       matrix:
@@ -21,51 +23,100 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install BlueBuild CLI
-        run: curl -fsSL https://raw.githubusercontent.com/blue-build/cli/main/install.sh | bash
-
-      - name: Generate ISO from recipe
+      # The bundled ISO (bluebuild generate-iso) embeds the whole ~6 GB image,
+      # far over GitHub Releases' 2 GiB per-asset limit. Instead we build a
+      # netinst ISO: just the anaconda installer (~0.3 GB) with a kickstart
+      # pointing at the GHCR image, which is downloaded during installation.
+      # The image is published daily by the bluebuild workflow (06:00 UTC), so
+      # :latest is always fresh when this job runs.
+      #
+      # Detect the Fedora major the weekly image is built on from the
+      # "<date>-<fedora>" tags that bluebuild pushes (e.g. 20260907-44). The
+      # installer must match the image's Fedora version, so this cannot be
+      # hardcoded forever. Falls back to 44 (ublue base-main is F44 currently).
+      - name: Detect Fedora version from published image tags
+        id: version
         run: |
-          set -uo pipefail
+          set -euo pipefail
+          token=$(curl -fsS "https://ghcr.io/token?scope=repository:bogdandabeast/customfedora:pull" | python3 -c "import json,sys;print(json.load(sys.stdin)['token'])")
+          tags=$(curl -fsS -H "Authorization: Bearer $token" "https://ghcr.io/v2/bogdandabeast/customfedora/tags/list")
+          ver=$(printf '%s' "$tags" | grep -oE '[0-9]{8}-[0-9]+' | sed -E 's/^.*-//' | sort -n | tail -1)
+          echo "Detected Fedora major version: ${ver:-44}"
+          echo "fedora=${ver:-44}" >> "$GITHUB_OUTPUT"
 
-          sudo bluebuild generate-iso \
-            --iso-name "${{ matrix.recipe }}.iso" \
-            recipe "./recipes/${{ matrix.recipe }}"
-          BUILD_EXIT=$?
+      - name: Build netinst installer ISO
+        id: build
+        run: |
+          set -euo pipefail
+          FEDORA="${{ steps.version.outputs.fedora }}"
+          IMG_REF="ghcr.io/bogdandabeast/customfedora:latest"
+          ISO="$(basename "${{ matrix.recipe }}" .yml)-netinst.iso"
+          echo "Building netinst ISO (Fedora ${FEDORA}) for ${IMG_REF} -> ${ISO}"
 
-          # Wait for any background processes and clean up
-          if jobs -l | grep -q .; then
-            wait
+          mkdir -p work
+          # Override build-container-installer's install_set_installer template:
+          # instead of installing a bundled copy of the image from the install
+          # media (/run/install/repo/<name>-<tag>), anaconda pulls the image
+          # straight from GHCR at install time. This is the documented anaconda
+          # pattern for remote bootable containers (ostreecontainer without a
+          # local OCI path uses the registry transport).
+          IMG_REF="${IMG_REF}" cat > work/install_set_installer.tmpl <<EOF
+<%page args="image_name, image_tag"/>
+append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=${IMG_REF} --no-signature-verification"
+EOF
+
+          # Reuse jasonn3/build-container-installer's lorax machinery (same
+          # installer the old pipeline built) but stop after boot.iso and do
+          # NOT import/embed the image. The overridden template is bind-mounted
+          # over the one baked into the container image.
+          if sudo docker info >/dev/null 2>&1; then
+            ENGINE=(sudo docker)
+          else
+            ENGINE=(sudo podman)
           fi
+          "${ENGINE[@]}" run --privileged --rm \
+            --entrypoint /bin/bash \
+            -w /build-container-installer \
+            -e FEVER="${FEDORA}" \
+            -e ISONAME="${ISO}" \
+            -v "$PWD/work/install_set_installer.tmpl":/build-container-installer/lorax_templates/install_set_installer.tmpl \
+            -v "$PWD/work":/out \
+            ghcr.io/jasonn3/build-container-installer:v1.4.0 \
+            -c '
+              set -euo pipefail
+              make VARIANT=Kinoite VERSION="$FEVER" \
+                SECURE_BOOT_KEY_URL=https://github.com/ublue-os/bazzite/raw/main/secure_boot.der \
+                ENROLLMENT_PASSWORD=universalblue \
+                results/images/boot.iso
+              cp results/images/boot.iso "/out/$ISONAME"
+            '
 
-          if [ $BUILD_EXIT -ne 0 ]; then
-            echo "::error::bluebuild generate-iso failed with exit code $BUILD_EXIT"
-            exit $BUILD_EXIT
-          fi
+          test -s "work/$ISO" || { echo "::error::netinst ISO not produced"; exit 1; }
+          ls -lh "work/$ISO"
 
-          # bluebuild generate-iso bind-mounts the working directory at
-          # /build-container-installer/build inside the installer container, so
-          # the ISO lands in the current directory (the workspace root), not in
-          # a build/ subdirectory.
-          ISO="${{ matrix.recipe }}.iso"
-          if [[ ! -f "$ISO" ]]; then
-            echo "::error::ISO file $ISO not found after generation"
+          # GitHub Releases assets are capped at 2 GiB; the netinst ISO is ~0.3 GB
+          # but fail loudly if it ever grows past the limit.
+          max_bytes=2147483648
+          size=$(stat -c %s "work/$ISO")
+          if (( size > max_bytes )); then
+            echo "::error::ISO too large ($size bytes) for GitHub Releases (max $max_bytes bytes)"
             exit 1
           fi
 
-          ls -lh "$ISO"
-          echo "ISO generated successfully: $ISO"
+          mv "work/$ISO" "./$ISO"
+          sha256sum "$ISO" > "$ISO-CHECKSUM"
+          echo "Netinst ISO ready: $ISO ($size bytes)"
+          echo "iso_name=$ISO" >> "$GITHUB_OUTPUT"
 
-      # GitHub Releases caps each asset at 2 GiB, so a multi-GB installer ISO
-      # cannot be attached to a release. Upload it as a workflow artifact
-      # instead, which supports much larger files. retention-days is kept short
-      # because each weekly ISO is several GB and artifact storage counts
-      # against the repo's Actions storage quota. archive: false uploads the
-      # raw ISO (no zip) so users get the .iso directly.
-      - name: Upload ISO as workflow artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload ISO as release asset
+        uses: softprops/action-gh-release@v2
         with:
-          path: ${{ matrix.recipe }}.iso
-          if-no-files-found: error
-          retention-days: 14
-          archive: false
+          files: |
+            ${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_name }}-CHECKSUM
+          tag_name: isos
+          name: Weekly netinst ISOs
+          draft: false
+          prerelease: true
+          generate_release_notes: false
+          overwrite_files: true
