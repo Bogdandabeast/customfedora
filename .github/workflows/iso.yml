@@ -45,14 +45,16 @@ jobs:
             exit $BUILD_EXIT
           fi
 
-          # bluebuild generate-iso writes the ISO under build/ by default.
+          # bluebuild generate-iso bind-mounts the working directory at
+          # /build-container-installer/build inside the installer container, so
+          # the ISO lands in the current directory (the workspace root), not in
+          # a build/ subdirectory.
           ISO="${{ matrix.recipe }}.iso"
-          if [[ ! -f "build/$ISO" ]]; then
-            echo "::error::ISO file build/$ISO not found after generation"
+          if [[ ! -f "$ISO" ]]; then
+            echo "::error::ISO file $ISO not found after generation"
             exit 1
           fi
 
-          cp -v build/"$ISO" ./
           ls -lh "$ISO"
 
           # Check size BEFORE attempting upload — GitHub Releases hard limit is
