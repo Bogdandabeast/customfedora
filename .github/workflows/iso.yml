@@ -39,9 +39,9 @@ jobs:
           cp -v build/"$ISO" ./
           ls -lh "$ISO"
 
-          # GitHub Releases hard limit is 2 GiB (2,147,483,648 bytes).
-          # Check BEFORE attempting upload — a too-large ISO produces a cryptic
-          # "Validation Failed" error from the upload action that's hard to debug.
+          # Check size BEFORE attempting upload — GitHub Releases hard limit is
+          # 2 GiB (2,147,483,648 bytes). A too-large ISO would otherwise produce
+          # a cryptic "Validation Failed" error from the upload step.
           max_bytes=2147483648
           size=$(stat -c %s "$ISO")
           if (( size > max_bytes )); then
