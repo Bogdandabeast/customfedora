@@ -36,10 +36,10 @@ cat > "$DEST" <<EOF
 type = "custom_button"
 glyph = "$GLYPH"
 label = "$LABEL"
-tooltip = "$TIP"
+tooltip = "$TIP — click para alternar"
 
 [widget.lid-mode.actions]
-left = "exec sh -c 'noctalia msg notification-show \"Modo tapa\" \"$(printf "%s" "$TIP" | sed "s/\"/\\\\\"/g")\"'"
+left = "exec /usr/bin/noctalia-lid-mode-toggle.sh"
 EOF
 
 # Asegura que bar.default.end contiene lid-mode (GUI overrides en settings.toml pisan config.toml)
