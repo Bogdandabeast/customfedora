@@ -156,6 +156,9 @@ modules:
         - podman.socket
         # libvirt daemon (needed by virt-manager; group setup is in vm-setup.just)
         - libvirtd.service
+        # Power profiles (self-enables on install, but ensure it stays enabled;
+        # Kinoite ships it masked and that state survives rebases)
+        - power-profiles-daemon.service
 
   - type: default-flatpaks
     configurations:
