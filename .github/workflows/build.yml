@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           # Keep in sync with the bluebuild job matrix below.
-          for recipe in recipe.niri.yml recipe.nvidia.yml; do
+          for recipe in recipe.niri.yml recipe.nvidia.yml recipe.niri-cachyos.yml; do
             echo "==> Validating recipes/${recipe}"
             bluebuild validate "./recipes/${recipe}"
           done
@@ -49,9 +49,10 @@ jobs:
       matrix:
         recipe:
           # !! Add your recipes here
-          #- recipe.yml # temporarily disabled (only niri is built)
+          #- recipe.yml # temporarily disabled
           - recipe.niri.yml
           - recipe.nvidia.yml
+          - recipe.niri-cachyos.yml
     steps:
       # the build is fully handled by the reusable github action
       - name: Build Custom Image

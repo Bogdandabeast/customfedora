@@ -1,0 +1,229 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+name: niri-cachyos
+description: Fedora Atomic with Niri compositor and Noctalia Shell, with the CachyOS kernel
+
+# ublue base-main: minimal Fedora Atomic (no desktop environment).
+# Everything the Niri/Noctalia desktop needs that Kinoite used to provide
+# implicitly (login manager, keyring, file manager, gvfs, power profiles,
+# xdg-user-dirs, Qt Wayland support) is installed explicitly below.
+base-image: ghcr.io/ublue-os/base-main
+image-version: latest
+
+modules:
+  # Desktop shell and compositor support
+  - type: files
+    files:
+      - source: system
+        destination: /
+
+  # Replace Fedora's kernel with the CachyOS kernel from the
+  # bieszczaders/kernel-cachyos COPR:
+  # https://copr.fedorainfracloud.org/coprs/bieszczaders/kernel-cachyos/
+  #
+  # The swap CANNOT be expressed as dnf module install/remove fields, because
+  # the ORDER of the two operations is load-bearing: kernel-cachyos-core
+  # declares Provides: kernel, so removing "kernel" after the install would
+  # take the new kernel straight back out. Remove first, then install.
+  - type: dnf
+    repos:
+      copr:
+        - bieszczaders/kernel-cachyos
+    install:
+      packages:
+        # Secure Boot tooling: the CachyOS kernel carries no PE signature, so
+        # running with Secure Boot ON means signing it with a key of your own
+        # (sbsign / sbverify) and enrolling it (mokutil). Shipping both keeps
+        # that procedure copy-pasteable.
+        - sbsigntools
+        - mokutil
+
+  # The kernel swap itself. tsflags=noscripts is REQUIRED, not a speed-up:
+  # the CachyOS RPMs ship no modules.dep, and their %posttrans runs
+  # kernel-install -> dracut, which aborts with "modules.dep is missing. Did
+  # you run depmod?" and fails the whole build. Skipping scriptlets and doing
+  # the work here is the fix. We then depmod and assert exactly ONE kernel
+  # remains with a vmlinuz and a modules.dep, so a half-done swap fails the
+  # build instead of shipping an unbootable image.
+  - type: containerfile
+    snippets:
+      - |
+        RUN set -eu \
+            && STOCK_KERNELS="$(rpm -qa --queryformat '%{NAME}\n' | grep -E '^(kernel|kernel-core|kernel-modules|kernel-modules-core|kernel-modules-extra)$' || true)" \
+            && if [ -n "$STOCK_KERNELS" ]; then \
+                 echo "Removing Fedora kernel: $STOCK_KERNELS"; \
+                 dnf5 -y remove --no-autoremove $STOCK_KERNELS; \
+               fi \
+            && rm -rf /usr/lib/modules/* \
+            && echo "Installing CachyOS kernel" \
+            && dnf5 -y install --setopt=tsflags=noscripts \
+                 kernel-cachyos kernel-cachyos-core kernel-cachyos-modules \
+                 kernel-cachyos-devel-matched \
+            && dnf5 clean all \
+            && test "$(ls -1 /usr/lib/modules | wc -l)" -eq 1 \
+            && KVER="$(ls -1 /usr/lib/modules)" \
+            && test -f "/usr/lib/modules/${KVER}/vmlinuz" \
+            && depmod -a "${KVER}" \
+            && test -f "/usr/lib/modules/${KVER}/modules.dep" \
+            && echo "Kernel now: ${KVER}"
+
+  - type: dnf
+    repos:
+      files:
+        - zed.repo
+        - vstudio.repo
+        - docker-ce.repo
+        - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
+    install:
+      skip-broken: true
+      packages:
+        - niri
+        - noctalia
+        - alacritty
+        - kanshi
+        - xwayland-satellite
+        - xdg-desktop-portal
+        - xdg-desktop-portal-gnome
+        - xdg-desktop-portal-gtk
+        - grim
+        - slurp
+        - wl-clipboard
+        - playerctl
+        # Login manager (ublue base has no display manager; sddm self-enables
+        # and Conflicts with getty@tty1).
+        - sddm
+        - sddm-themes
+        - qt5-qtgraphicaleffects
+        - qt5-qtquickcontrols2
+        - qt5-qtsvg
+        # File manager + mounting stack (Kinoite shipped Dolphin; base has none).
+        # Nautilus matches the GTK/GNOME portal + keyring stack; gvfs provides
+        # trash, automount (udisks2 is already in base) and remote mounts.
+        - nautilus
+        - file-roller
+        - gvfs
+        - gvfs-archive
+        - gvfs-fuse
+        - gvfs-mtp
+        - gvfs-nfs
+        - gvfs-smb
+        # GNOME keyring daemon (pam module already below; SDDM's PAM service
+        # shipped by Fedora already hooks pam_gnome_keyring for auto-unlock)
+        - gnome-keyring
+        # Power profiles for the Noctalia power_profile widget (Kinoite shipped
+        # power-profiles-daemon; base does not; it self-enables on install)
+        - power-profiles-daemon
+        # Creates ~/Pictures etc. so niri's screenshot path works out of the box
+        - xdg-user-dirs
+
+        # Qt Wayland platform for any RPM Qt apps (greeter/shell are fine without)
+        - qt5-qtwayland
+        - qt6-qtwayland
+
+        # Volume GUI fallback (Noctalia's volume IPC is unreliable with BT sinks)
+        - pavucontrol
+        # CLI tools migrated from Homebrew — all available as Fedora RPMs
+        # (verified on F44), so they're system-wide and update with the image.
+        - gh
+        - neovim
+        - tmux
+        - fzf
+        - bat
+        - btop
+        - fastfetch
+        - zoxide
+        - yt-dlp
+        - fd-find
+        - ripgrep
+        - distrobox
+        # Editors / dev tooling (external repos)
+        - zed
+        - code
+        # Prereqs for the WinBoat install script
+        - curl
+        - jq
+        # Dependency of the Noctalia warp plugin (provides warp-cli)
+        - cloudflare-warp
+        # PAM module that auto-unlocks the GNOME keyring at SDDM login
+        # (Fedora's /etc/pam.d/sddm already references pam_gnome_keyring)
+        - gnome-keyring-pam
+        # Container engine (docker-ce repo; same stack as the sway recipe)
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+        - podman-compose
+        # Virtualization — full VM stack (libvirt + QEMU device support)
+        - virt-manager
+        - libvirt-daemon-driver-network
+        - libvirt-daemon-driver-nodedev
+        - libvirt-daemon-driver-qemu
+        - libvirt-daemon-driver-storage-core
+        - qemu-audio-spice
+        - qemu-char-spice
+        - qemu-device-display-qxl
+        - qemu-device-display-virtio-gpu
+        - qemu-device-display-virtio-vga
+        - qemu-device-usb-redirect
+        - qemu-system-x86-core
+    remove:
+      packages:
+        - firefox
+        - firefox-langpacks
+
+  # Install WinBoat from its latest GitHub RPM release
+  - type: script
+    scripts:
+      - downloadlatestwinboatrpm.sh
+
+  # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
+  # fish, lazygit, lazydocker and bun are then installed from brew by
+  # brew-install-fish.service / brew-install-cli.service (see files/system).
+  - type: brew
+    brew-analytics: false
+
+  - type: justfiles
+
+  # Systemd services (WARP daemon + container sockets, as in the sway recipe)
+  - type: systemd
+    system:
+      enabled:
+        - warp-svc.service
+        - brew-install-fish.service
+        - brew-install-cli.service
+        - docker.socket
+        - podman.socket
+        # libvirt daemon (needed by virt-manager; group setup is in vm-setup.just)
+        - libvirtd.service
+
+  - type: default-flatpaks
+    configurations:
+      - notify: true
+        scope: system
+        install:
+          # Flatpaks installed at first boot (boot-install) instead of image build
+          # to keep the ISO size down. They update with the system but are not
+          # part of the base image layers.
+          - com.brave.Browser
+          # Referenced by the niri config (shortcut + window rules)
+          - io.gitlab.librewolf-community
+          - com.valvesoftware.Steam
+          # Multimedia
+          - org.videolan.VLC
+          - com.dec05eba.gpu_screen_recorder
+          # Security / tools
+          - org.keepassxc.KeePassXC
+          - com.github.tchx84.Flatseal
+          - io.github.flattool.Warehouse
+          # Gaming
+          - com.heroicgameslauncher.hgl
+          - ru.linux_gaming.PortProton
+        boot-install: true
+      - scope: user
+
+  # Regenerate the initramfs. Installing a kernel in a container build does NOT
+  # regenerate it, and the CachyOS swap happened with scriptlets skipped — this
+  # is what actually builds the initramfs for the new kernel. Must run after all
+  # the kernel-affecting modules above.
+  - type: initramfs
