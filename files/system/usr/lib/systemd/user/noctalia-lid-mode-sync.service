@@ -1,0 +1,11 @@
+[Unit]
+Description=Sincroniza el widget Noctalia hibernate on/off con el modo de tapa
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/noctalia-lid-mode-sync.sh
+
+[Install]
+WantedBy=graphical-session.target

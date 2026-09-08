@@ -23,7 +23,7 @@ order = [ "default" ]
     capsule_opacity = 0.9
     center = [ "group:g1" ]
     enabled = true
-    end = [ "notifications", "group:g2", "volume", "brightness", "control-center", "session", "keyboard_layout", "warp" ]
+    end = [ "lid-mode", "notifications", "group:g2", "volume", "brightness", "control-center", "session", "keyboard_layout", "warp" ]
     layer = "top"
     margin_ends = 0
     padding = 14
@@ -158,6 +158,17 @@ show_label = true
 
 [widget.warp]
 type = "levi/warp:warp"
+
+[widget.lid-mode]
+# Indicador del modo de tapa: se regenera por /usr/local/bin/noctalia-lid-mode-sync.sh
+# Valores: "hibernate on" (suspend-then-hibernate) / "hibernate off" (solo bloquea)
+type = "custom_button"
+glyph = "help"
+label = "lid ?"
+tooltip = "Modo tapa desconocido (ejecuta ujust setup-lid-lock o setup-hibernate)"
+
+[widget.lid-mode.actions]
+left = "exec noctalia msg notification-show \"Modo tapa\" \"Cambialo con ujust setup-lid-lock / setup-hibernate\""
 
 [widget.workspaces]
 empty_color = "surface_variant"

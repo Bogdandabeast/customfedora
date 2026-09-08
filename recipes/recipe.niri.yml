@@ -137,6 +137,10 @@ modules:
 
   # Systemd services (WARP daemon + container sockets, as in the sway recipe)
   - type: systemd
+    user:
+      enabled:
+        # Keeps the Noctalia navbar widget (hibernate on/off) in sync with lid.conf
+        - noctalia-lid-mode-sync.service
     system:
       enabled:
         - warp-svc.service
