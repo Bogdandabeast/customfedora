@@ -61,9 +61,9 @@ jobs:
           # pattern for remote bootable containers (ostreecontainer without a
           # local OCI path uses the registry transport).
           IMG_REF="${IMG_REF}" cat > work/install_set_installer.tmpl <<EOF
-<%page args="image_name, image_tag"/>
-append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=${IMG_REF} --no-signature-verification"
-EOF
+          <%page args="image_name, image_tag"/>
+          append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=${IMG_REF} --no-signature-verification"
+          EOF
 
           # Reuse jasonn3/build-container-installer's lorax machinery (same
           # installer the old pipeline built) but stop after boot.iso and do
