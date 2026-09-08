@@ -12,8 +12,6 @@ jobs:
   iso:
     name: Build ISO from recipe
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # upload release asset
     strategy:
       fail-fast: false
       matrix:
@@ -56,27 +54,18 @@ jobs:
           fi
 
           ls -lh "$ISO"
+          echo "ISO generated successfully: $ISO"
 
-          # Check size BEFORE attempting upload — GitHub Releases hard limit is
-          # 2 GiB (2,147,483,648 bytes). A too-large ISO would otherwise produce
-          # a cryptic "Validation Failed" error from the upload step.
-          max_bytes=2147483648
-          size=$(stat -c %s "$ISO")
-          if (( size > max_bytes )); then
-            echo "::error::ISO too large ($size bytes) for GitHub Releases (max $max_bytes bytes)"
-            exit 1
-          fi
-
-          echo "ISO generated successfully: $ISO ($size bytes)"
-
-      - name: Upload ISO as release asset
-        uses: softprops/action-gh-release@v2
+      # GitHub Releases caps each asset at 2 GiB, so a multi-GB installer ISO
+      # cannot be attached to a release. Upload it as a workflow artifact
+      # instead, which supports much larger files. retention-days is kept short
+      # because each weekly ISO is several GB and artifact storage counts
+      # against the repo's Actions storage quota. archive: false uploads the
+      # raw ISO (no zip) so users get the .iso directly.
+      - name: Upload ISO as workflow artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: |
-            ${{ matrix.recipe }}.iso
-          tag_name: isos
-          name: Weekly ISOs
-          draft: false
-          prerelease: true
-          generate_release_notes: false
-          overwrite_files: true
+          path: ${{ matrix.recipe }}.iso
+          if-no-files-found: error
+          retention-days: 14
+          archive: false
