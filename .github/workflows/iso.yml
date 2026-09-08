@@ -25,10 +25,10 @@ jobs:
 
       # The bundled ISO (bluebuild generate-iso) embeds the whole ~6 GB image,
       # far over GitHub Releases' 2 GiB per-asset limit. Instead we build a
-      # netinst ISO: just the anaconda installer (~0.3 GB) with a kickstart
-      # pointing at the GHCR image, which is downloaded during installation.
-      # The image is published daily by the bluebuild workflow (06:00 UTC), so
-      # :latest is always fresh when this job runs.
+      # netinst ISO: just the anaconda installer with a kickstart pointing at
+      # the GHCR image, which is downloaded during installation. The image is
+      # published daily by the bluebuild workflow (06:00 UTC), so :latest is
+      # always fresh when this job runs.
       #
       # Detect the Fedora major the weekly image is built on from the
       # "<date>-<fedora>" tags that bluebuild pushes (e.g. 20260907-44). The
@@ -50,7 +50,9 @@ jobs:
           set -euo pipefail
           FEDORA="${{ steps.version.outputs.fedora }}"
           IMG_REF="ghcr.io/bogdandabeast/customfedora:latest"
-          ISO="$(basename "${{ matrix.recipe }}" .yml)-netinst.iso"
+          R="${{ matrix.recipe }}"
+          FLAVOR="${R#*.}"            # recipe.niri.yml -> niri
+          ISO="${FLAVOR%.yml}-netinst.iso"
           echo "Building netinst ISO (Fedora ${FEDORA}) for ${IMG_REF} -> ${ISO}"
 
           mkdir -p work
@@ -89,13 +91,28 @@ jobs:
                 ENROLLMENT_PASSWORD=universalblue \
                 results/images/boot.iso
               cp results/images/boot.iso "/out/$ISONAME"
+
+              # Verify the kickstart override actually landed in the installer:
+              # extract install.img from the boot ISO and grep the interactive
+              # defaults for the remote GHCR image ref. Guards against the
+              # bind-mounted template being silently ignored.
+              xorriso -osirrox on -indev results/images/boot.iso \
+                -extract /images/install.img /tmp/install.img >/dev/null 2>&1
+              unsquashfs -quiet -d /tmp/root /tmp/install.img usr/share/anaconda/interactive-defaults.ks
+              if grep -q "ostreecontainer --url=ghcr.io/bogdandabeast/customfedora:latest" \
+                /tmp/root/usr/share/anaconda/interactive-defaults.ks; then
+                echo "Kickstart override verified: installs image from GHCR"
+              else
+                echo "FAIL: kickstart override missing from installer" >&2
+                exit 1
+              fi
             '
 
           test -s "work/$ISO" || { echo "::error::netinst ISO not produced"; exit 1; }
           ls -lh "work/$ISO"
 
-          # GitHub Releases assets are capped at 2 GiB; the netinst ISO is ~0.3 GB
-          # but fail loudly if it ever grows past the limit.
+          # GitHub Releases assets are capped at 2 GiB; the netinst ISO is well
+          # below, but fail loudly if it ever grows past the limit.
           max_bytes=2147483648
           size=$(stat -c %s "work/$ISO")
           if (( size > max_bytes )); then
