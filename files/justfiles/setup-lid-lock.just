@@ -158,8 +158,15 @@ setup-lid-lock:
     # así el ahorro de batería / equilibrado / rendimiento que tengas
     # puesto (Noctalia / powerprofilesctl) sigue mandando.
     EOF
-    echo "   (logind leerá esto en el próximo arranque; el inhibitor del watcher ya"
-    echo "    bloquea la tapa sin necesidad de reiniciar logind — evitamos sacarte de sesión)"
+    # Aplica en vivo sin reboot: HUP recarga lid.conf; el inhibitor ya cubre el gap
+    if sudo kill -HUP "$(cat /run/systemd/logind.pid 2>/dev/null || pidof systemd-logind 2>/dev/null | awk '{print $1}')" 2>/dev/null; then
+        echo "   ✓ logind recargado en vivo (HUP)"
+    elif sudo systemctl kill -s HUP systemd-logind 2>/dev/null; then
+        echo "   ✓ logind recargado en vivo (systemctl HUP)"
+    else
+        echo "   (logind leerá esto en el próximo arranque; el inhibitor del watcher ya"
+        echo "    bloquea la tapa sin necesidad de reiniciar logind — evitamos sacarte de sesión)"
+    fi
 
     echo "→ 3/4 Activando el watcher..."
     systemctl --user daemon-reload
@@ -205,9 +212,9 @@ setup-lid-lock:
 
     if [[ $FAIL -eq 0 ]]; then
         echo
-        echo "✅ Hecho. Al cerrar la tapa: pantalla bloqueada, tareas siguen corriendo."
+        echo "✅ Hecho. Al cerrar la tapa: pantalla bloqueada, tareas siguen corriendo (en vivo, sin reboot)."
         echo "   Navbar: hibernate off (tapa solo bloquea). Perfil respetado ($PPD_AFTER)."
-        echo "   Para el modo que sí ahorra batería al cerrar: ujust setup-hibernate"
+        echo "   Toggle futuro sin staged: ujust setup-hibernate ↔ ujust setup-lid-lock (HUP live)"
     else
         echo
         echo "⚠️  Instalado con advertencias. Revisa los mensajes de arriba."

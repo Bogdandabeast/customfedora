@@ -47,7 +47,7 @@ setup-hibernate:
         exit 1
     fi
 
-    echo "→ 4/6 Añadiendo resume= al kernel (rpm-ostree)..."
+    echo "→ 4/6 Añadiendo resume= al kernel (rpm-ostree, solo una vez)..."
     # findmnt en btrfs subvol devuelve /dev/mapper/luks-xxx[/var] — quitamos el sufijo [subvol]
     RESUME_SRC="$(findmnt -no SOURCE /var 2>/dev/null || findmnt -no SOURCE / 2>/dev/null || true)"
     RESUME_SRC="${RESUME_SRC%%\[*}"  # strip '[/var]' si existe
@@ -81,32 +81,50 @@ setup-hibernate:
     fi
 
     CUR_KARGS="$(rpm-ostree kargs 2>/dev/null || echo "")"
-    if echo "$CUR_KARGS" | tr ' ' '\n' | grep -q "^resume="; then
+    STAGED_NEEDED=0
+    if echo "$CUR_KARGS" | tr ' ' '\n' | grep -qxF "$RESUME_KARG"; then
+        echo "   ✓ resume ya correcto: $RESUME_KARG (sin staged)"
+    elif echo "$CUR_KARGS" | tr ' ' '\n' | grep -q "^resume="; then
         CUR_RESUME="$(echo "$CUR_KARGS" | tr ' ' '\n' | grep "^resume=" | head -n1)"
-        if [[ "$CUR_RESUME" == "$RESUME_KARG" ]]; then
-            echo "   Ya está correcto: $CUR_RESUME"
-        else
-            # rpm-ostree --replace necesita forma KEY=VALUE=NEWVALUE (sin el prefijo 'resume=' duplicado)
-            CUR_VAL="${CUR_RESUME#resume=}"
-            NEW_VAL="${RESUME_KARG#resume=}"
-            echo "   Actualizando $CUR_RESUME → $RESUME_KARG"
-            sudo rpm-ostree kargs --replace="resume=${CUR_VAL}=${NEW_VAL}" 2>/dev/null || \
-                sudo rpm-ostree kargs --delete="$CUR_RESUME" --append="$RESUME_KARG"
+        CUR_VAL="${CUR_RESUME#resume=}"
+        NEW_VAL="${RESUME_KARG#resume=}"
+        echo "   Actualizando $CUR_RESUME → $RESUME_KARG"
+        # Solo crea staged si realmente cambia; --replace es idempotente
+        if ! sudo rpm-ostree kargs --replace="resume=${CUR_VAL}=${NEW_VAL}" 2>/dev/null; then
+            sudo rpm-ostree kargs --delete="$CUR_RESUME" --append-if-missing="$RESUME_KARG" 2>/dev/null || \
+                sudo rpm-ostree kargs --append-if-missing="$RESUME_KARG"
         fi
+        STAGED_NEEDED=1
+        CUR_KARGS="$(rpm-ostree kargs 2>/dev/null || echo "")"
     else
-        echo "   Añadiendo $RESUME_KARG"
-        sudo rpm-ostree kargs --append="$RESUME_KARG"
+        echo "   Añadiendo $RESUME_KARG (único staged, próximos toggles sin reboot)"
+        sudo rpm-ostree kargs --append-if-missing="$RESUME_KARG"
+        STAGED_NEEDED=1
+        CUR_KARGS="$(rpm-ostree kargs 2>/dev/null || echo "")"
     fi
-    # resume_offset: solo si lo resolvimos y no está ya
+    # resume_offset: solo si lo resolvimos y no está ya — idempotente
     if [[ -n "${SWAP_OFFSET:-}" && "$SWAP_OFFSET" != "0" ]]; then
         if echo "$CUR_KARGS" | tr ' ' '\n' | grep -q "^resume_offset="; then
-            echo "   resume_offset ya presente ($(echo "$CUR_KARGS" | tr ' ' '\n' | grep "^resume_offset=" | head -n1))"
+            CUR_OFF="$(echo "$CUR_KARGS" | tr ' ' '\n' | grep "^resume_offset=" | head -n1)"
+            if [[ "$CUR_OFF" == "resume_offset=$SWAP_OFFSET" ]]; then
+                echo "   ✓ resume_offset ya correcto: $CUR_OFF"
+            else
+                echo "   Actualizando $CUR_OFF → resume_offset=$SWAP_OFFSET"
+                CUR_OFF_VAL="${CUR_OFF#resume_offset=}"
+                sudo rpm-ostree kargs --replace="resume_offset=${CUR_OFF_VAL}=${SWAP_OFFSET}" 2>/dev/null || \
+                    sudo rpm-ostree kargs --append-if-missing="resume_offset=$SWAP_OFFSET" || true
+                STAGED_NEEDED=1
+            fi
         else
             echo "   Añadiendo resume_offset=$SWAP_OFFSET (swapfile)"
-            sudo rpm-ostree kargs --append="resume_offset=$SWAP_OFFSET" || true
+            sudo rpm-ostree kargs --append-if-missing="resume_offset=$SWAP_OFFSET" || true
+            STAGED_NEEDED=1
         fi
     else
         echo "   ℹ︎  resume_offset no resuelto (systemd ≥254 lo infiere automáticamente al hibernar)."
+    fi
+    if [[ $STAGED_NEEDED -eq 0 ]]; then
+        echo "   ℹ︎  Sin cambios de kargs — toggle futuro sin staged ni reboot."
     fi
 
     # Aviso LUKS: si el dispositivo es mapper/crypt, el initramfs debe poder descifrarlo
@@ -115,7 +133,7 @@ setup-hibernate:
         echo "      En Fedora Atomic suele funcionar si el sistema ya pide clave al arrancar."
     fi
 
-    echo "→ 5/6 Configurando logind (suspend-then-hibernate)..."
+    echo "→ 5/6 Configurando logind (suspend-then-hibernate, aplica en vivo)..."
     sudo mkdir -p /etc/systemd/logind.conf.d
     sudo tee /etc/systemd/logind.conf.d/lid.conf >/dev/null <<'EOF'
     [Login]
@@ -124,7 +142,14 @@ setup-hibernate:
     HandleLidSwitchDocked=ignore
     HibernateDelaySec=1800
     EOF
-    echo "   (logind leerá esto tras reiniciar; no se reinicia logind aquí para no sacarte de sesión)"
+    # Aplica sin reboot: HUP recarga lid.conf sin matar sesión (a diferencia de restart)
+    if sudo kill -HUP "$(cat /run/systemd/logind.pid 2>/dev/null || pidof systemd-logind 2>/dev/null | awk '{print $1}')" 2>/dev/null; then
+        echo "   ✓ logind recargado en vivo (HUP)"
+    elif sudo systemctl kill -s HUP systemd-logind 2>/dev/null; then
+        echo "   ✓ logind recargado en vivo (systemctl HUP)"
+    else
+        echo "   ℹ︎  logind leerá lid.conf en próximo reinicio (HUP no disponible)"
+    fi
 
     # El watcher de "solo bloquear" no debe interferir
     systemctl --user disable --now lid-lock.service >/dev/null 2>&1 || true
@@ -156,14 +181,18 @@ setup-hibernate:
 
     echo
     if [[ $FAIL -eq 0 ]]; then
-        # ¿Necesita reinicio?
-        if ! cat /proc/cmdline 2>/dev/null | tr ' ' '\n' | grep -q "^resume="; then
-            echo "✅ Hecho. REINICIA para que el kernel cargue resume=. (navbar ya dice hibernate on)"
+        # ¿Necesita reinicio? Solo si kargs staged y aún no en cmdline
+        if [[ $STAGED_NEEDED -eq 1 ]] && ! cat /proc/cmdline 2>/dev/null | tr ' ' '\n' | grep -q "^resume="; then
+            echo "✅ Hecho. REINICIA una sola vez para que el kernel cargue resume=. (próximos toggles sin reboot)"
             echo "   Tras reiniciar, verifica con: systemctl hibernate"
             echo "   (suspenderá al cerrar la tapa y, si sigue cerrada 30 min, hibernará a 0 consumo)"
+            echo "   Toggle futuro: ujust setup-lid-lock ↔ ujust setup-hibernate sin staged ni reboot."
+        elif [[ $STAGED_NEEDED -eq 1 ]]; then
+            echo "✅ Hecho (staged aplicado pero resume= ya estaba cargado — raro, reinicia si hibernate falla)."
+            echo "   Puedes probar ya: systemctl hibernate"
         else
-            echo "✅ Hecho (resume= ya cargado en este boot)."
-            echo "   Puedes probar ya: systemctl hibernate  (guardará la sesión y apagará)"
+            echo "✅ Hecho (sin staged — toggle en vivo). logind ya en suspend-then-hibernate."
+            echo "   Prueba: cierra tapa 5s → debe suspender; o systemctl hibernate"
         fi
     else
         echo "⚠️  Instalado con advertencias. Revisa los mensajes de arriba."
