@@ -29,19 +29,20 @@ jobs:
       - name: Generate ISO from recipe
         run: |
           set -euo pipefail
+
           sudo bluebuild generate-iso \
             --iso-name "${{ matrix.recipe }}.iso" \
             recipe "./recipes/${{ matrix.recipe }}"
 
           # bluebuild generate-iso writes the ISO under build/ by default.
-          # Copy it to the workspace root so the upload step can find it.
-          cp -v build/"${{ matrix.recipe }}".iso ./
-          ls -lh "${{ matrix.recipe }}".iso
+          ISO="${{ matrix.recipe }}.iso"
+          cp -v build/"$ISO" ./
+          ls -lh "$ISO"
 
           # GitHub Releases assets are capped at 2 GiB. If the ISO is bigger,
           # fail early with a clear message instead of hitting the upload API.
           max_bytes=2147483648
-          size=$(stat -c %s "${{ matrix.recipe }}".iso)
+          size=$(stat -c %s "$ISO")
           if (( size > max_bytes )); then
             echo "::error::ISO too large ($size bytes) for GitHub Releases (max $max_bytes bytes)"
             exit 1

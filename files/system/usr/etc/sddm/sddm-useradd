@@ -1,7 +1,0 @@
-#!/usr/bin/sh
-
-# Creates the sddm user at boot. Users/groups created during an ostree image
-# build do not survive into the deployed system (see ublue-os/main#224), so
-# SDDM's greeter account is provisioned here instead.
-getent group sddm > /dev/null || groupadd -r sddm
-getent passwd sddm > /dev/null || useradd -r -g sddm -c "SDDM Greeter Account" -d /var/lib/sddm -s /usr/sbin/nologin sddm

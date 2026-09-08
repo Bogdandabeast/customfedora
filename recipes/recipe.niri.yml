@@ -40,8 +40,7 @@ modules:
         - wl-clipboard
         - playerctl
         # Login manager (ublue base has no display manager; sddm self-enables
-        # and Conflicts with getty@tty1). sddm-themes provides the maldives
-        # theme we restyle with the dracula wallpaper (see setsddmtheming.sh).
+        # and Conflicts with getty@tty1).
         - sddm
         - sddm-themes
         - qt5-qtgraphicaleffects
@@ -66,9 +65,11 @@ modules:
         - power-profiles-daemon
         # Creates ~/Pictures etc. so niri's screenshot path works out of the box
         - xdg-user-dirs
+
         # Qt Wayland platform for any RPM Qt apps (greeter/shell are fine without)
         - qt5-qtwayland
         - qt6-qtwayland
+
         # Volume GUI fallback (Noctalia's volume IPC is unreliable with BT sinks)
         - pavucontrol
         # CLI tools migrated from Homebrew — all available as Fedora RPMs
@@ -116,19 +117,15 @@ modules:
         - qemu-device-display-virtio-vga
         - qemu-device-usb-redirect
         - qemu-system-x86-core
-        # Script engine for the custom plymouth boot splash (bogdan theme)
-        - plymouth-plugin-script
     remove:
       packages:
         - firefox
         - firefox-langpacks
 
   # Install WinBoat from its latest GitHub RPM release
-  # and restyle the SDDM maldives greeter (white text over our dark wallpaper)
   - type: script
     scripts:
       - downloadlatestwinboatrpm.sh
-      - setsddmtheming.sh
 
   # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
   # fish, lazygit, lazydocker and bun are then installed from brew by
@@ -147,10 +144,6 @@ modules:
         - brew-install-cli.service
         - docker.socket
         - podman.socket
-        # Creates the sddm user at boot (user/group creation doesn't survive
-        # ostree image builds; see ublue-os/main#224). sddm.service itself is
-        # enabled by the package's own scriptlet.
-        - sddm-boot.service
         # libvirt daemon (needed by virt-manager; group setup is in vm-setup.just)
         - libvirtd.service
 
@@ -174,8 +167,3 @@ modules:
           - com.heroicgameslauncher.hgl
           - ru.linux_gaming.PortProton
       - scope: user
-
-  # Bake the custom plymouth theme (bogdan) into the initramfs
-  - type: initramfs
-
-  - type: signing
