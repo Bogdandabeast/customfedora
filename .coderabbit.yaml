@@ -1,0 +1,108 @@
+language: es-ES
+tone_instructions: "Sé directo y técnico. Respuestas en español si el diff está en español; respeta el idioma del autor. Prioriza fallos de build/boot de imagen."
+early_access: false
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  review_status: true
+  collapse_walkthrough: true
+  poem: false
+  path_filters:
+    # Generados / build outputs (site/public ya gitignored pero excluye por si llega en patch)
+    - "!site/public/**"
+    - "!site/resources/**"
+    - "!.bluebuild-scripts_*/**"
+    - "!Containerfile"
+    # Locks y deps — ruido sin valor de review
+    - "!bun.lock"
+    - "!bun.lockb"
+    - "!package-lock.json"
+    - "!**/package-lock.json"
+    - "!node_modules/**"
+    - "!skills-lock.json"
+    # Binarios + media pesados (tracked por legacy docs/migrations)
+    - "!gentleman/**"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"
+    - "!**/*.bmp"
+    - "!**/*.webp"
+    - "!**/*.mp4"
+    - "!**/*.zip"
+    - "!**/*.tar"
+    - "!**/*.gz"
+    - "!**/*.ttf"
+    - "!**/*.otf"
+    - "!**/*.woff"
+    - "!**/*.woff2"
+    # docs dump migrado — 485 files, config/theme dumps (solo stub relevante)
+    - "!docs/fedora_migrations/**"
+    # Cache / tooling generado
+    - "!.atl/**"
+    - "!site/.hugo_build.lock"
+    # Husky internals
+    - "!.husky/_/**"
+  path_instructions:
+    - path: "recipes/**"
+      instructions: |
+        Alta criticidad: cambio toca el build de imagen Atomic.
+        - Valida orden de módulos (files → dnf antes de containerfile kernel swap) y que `remove` no pise un `Provides: kernel` sin `tsflags=noscripts` + `depmod -a`.
+        - Flag repos `.repo` huérfanos (no referenciados en ningún `type: dnf -> repos.files`), `from-file:` desconectados, y paquetes que requieren COPR no declarado.
+        - Exige `bluebuild validate` green para cada recipe en `.github/workflows/build.yml` matrix.
+    - path: ".github/workflows/**"
+      instructions: |
+        Revisa triggers `paths`/`paths-ignore`: `site/**` sólo → docs.yml, `recipes/**` sólo → build.yml. No deben solaparse.
+        Usa `peaceiris/actions-hugo@v3 extended` para docs y `blue-build/github-action` para imagen. Verifica OIDC `pages:write + id-token:write` para Pages.
+    - path: "files/system/**"
+      instructions: |
+        Overlay `files/system/ → /`. Verifica que `source: system, destination: /` hace que `files/system/etc/foo → /etc/foo` (no `usr/etc/foo`).
+        Flag permisos 755/644, servicios sin `type: systemd` `enabled:`, y archivos sway/waybar huérfanos (niri usa noctalia).
+    - path: "files/scripts/**"
+      instructions: |
+        Shell defensivo: `set -Eeuo pipefail`, shebang `#!/usr/bin/env bash`, traps/cleanup, `curl --retry`/`jq` con `set -e`. Marca `dnf` sin `set -e`, paths peligrosos.
+    - path: "files/justfiles/**"
+      instructions: |
+        Justfiles son `type: justfiles` expuestos en la imagen. Revisa idempotencia (`append-if-missing`, `grep -qxF` antes de `rpm-ostree kargs`), resume/resume_offset LUKS, y que no haya `powerprofilesctl set` en modo lock.
+    - path: "site/content/**"
+      instructions: |
+        Docs siguen shape cognitiva: `Quick path → Details (table) → Checklist → Next step`. Frontmatter `title`/`weight` obligatorios.
+        Sólo shortcodes `callout`/`hint` (shims agnósticos). Verifica links relativos `../reference/` resuelvan y tabla de `repo-structure` coincida con `recipes/*.yml`.
+    - path: "site/**"
+      instructions: |
+        Hugo + Hextra vía Hugo Modules (`hugo.yaml` `module.imports: [hextra]`, Go 1.27, sin Node). No añadir `package.json` deps. CSS sólo vía Hugo Pipes (`assets/css/custom.css`).
+        `hugo --minify --source site` debe emitir `site/public/index.html` sin Node.
+    - path: "AGENTS.md"
+      instructions: |
+        Este archivo gobierna convenciones del proyecto. Cambios deben mantener tono técnico y reglas existentes.
+    - path: "openspec/**"
+      instructions: |
+        Spec-driven: RFC 2119 MUST/SHOULD, Given/When/Then. Valida que proposal/design/tasks/verify estén coherentes antes de archive.
+
+# Herramientas integradas (lints que CodeRabbit ejecuta automáticamente)
+tools:
+  shellcheck:
+    enabled: true
+  yamllint:
+    enabled: true
+  actionlint:
+    enabled: true
+  hadolint:
+    enabled: true
+  markdownlint:
+    enabled: false  # docs/ legacy dump rompería
+  checkov:
+    enabled: false
+  gitleaks:
+    enabled: true
+  trufflehog:
+    enabled: false
+
+knowledge_base:
+  learnings:
+    scope: local
+  code_guidelines:
+    enabled: true
