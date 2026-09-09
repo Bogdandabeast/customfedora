@@ -1,0 +1,13 @@
+[Unit]
+Description=MSI B7M limite bateria 80% via EC 0xEF
+After=multi-user.target
+Requires=ryzen_smu_loader.service
+After=ryzen_smu_loader.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/msi-battery-80.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

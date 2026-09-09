@@ -1,3 +1,5 @@
+import? 'files/justfiles/ryzen-tuning.just'
+
 # customfedora — justfile
 # Requires: just, hugo extended >=0.128.x, go
 # See: https://gohugo.io/installation/ (brew install hugo / dnf install hugo)

@@ -1,0 +1,13 @@
+[Unit]
+Description=Ryzen SMU driver loader (7730U Cezanne) - recompila si hace falta
+DefaultDependencies=no
+After=sysinit.target
+Before=ryzen-profiles-boot.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/ryzen_smu_loader.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

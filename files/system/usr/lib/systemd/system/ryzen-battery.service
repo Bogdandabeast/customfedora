@@ -1,0 +1,8 @@
+[Unit]
+Description=Ryzen 7730U ULTRA bateria 6W 2.2GHz (sin cargador) - max vida
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ryzen-battery-hook.sh
+RemainAfterExit=no

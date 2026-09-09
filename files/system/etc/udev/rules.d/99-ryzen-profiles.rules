@@ -1,0 +1,3 @@
+# MSI Modern 15 B7M B7M 7730U - auto perf/battery al enchufar/desenchufar
+SUBSYSTEM=="power_supply", KERNEL=="ADP1", ATTR{online}=="0", RUN+="/bin/systemctl start ryzen-battery.service"
+SUBSYSTEM=="power_supply", KERNEL=="ADP1", ATTR{online}=="1", RUN+="/bin/systemctl start ryzen-perf.service"

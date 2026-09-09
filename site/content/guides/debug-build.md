@@ -44,6 +44,17 @@ bluebuild build ./recipes/recipe.niri.yml
 - [ ] Rollback plan known: `rpm-ostree rollback` reverts deployment without data loss.
 - [ ] After fix, `bluebuild validate` re-run and CI `validate` job green before `bluebuild` matrix runs.
 
+## Ryzen / `scx` quick triage
+
+```bash
+just ryzen-status                          # ADP1, max, EPP, GPU, EC 0xd0, ryzen_smu
+just ryzen-log                             # udev jumps battery/perf
+systemctl status scx.service               # BTF pahole <1.26 on 7.2.3 -> failed EEVDF (see [CachyOS kernel](/guides/kernel-cachyos/))
+ls /sys/kernel/ryzen_smu_drv/smu_args     # missing after KVER change -> ryzen_smu_loader recompiles
+cat /sys/class/power_supply/ADP1/online  # 0 battery / 1 AC
+```
+Full Ryzen matrix → [Ryzen 7730U tuning](/guides/ryzen-tuning/).
+
 ## Next step
 
 Fix is usually in `recipes/*.yml` → [Add a package](/guides/add-package/) or [CachyOS kernel](/guides/kernel-cachyos/) for ordering. Files issue → [Add a system file](/guides/add-system-file/).

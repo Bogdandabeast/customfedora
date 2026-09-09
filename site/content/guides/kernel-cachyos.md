@@ -41,13 +41,36 @@ RUN set -eu \
 Do not swap remove/install order — `Provides: kernel` will pull the new kernel back out. When adding packages to `niri-cachyos`, keep kernel-COPR repos in their own `dnf` block before the `containerfile` swap.
 {{< /callout >}}
 
+## LAVD y `pahole < 1.26` — qué hacer si `scx.service` falla
+
+En `kernel-cachyos 7.2.3` el `BTF` se generó con `pahole < 1.26` y todos los `scx` (`scx_lavd/bpfland/rusty`) fallan igual:
+
+```
+libbpf: extern (func ksym) 'scx_bpf_error_bstr': func_proto [393] incompatible with vmlinux [60790]
+Error: BTF has malformed scx kfunc prototype(s): __scx_bpf_dsq_insert_vtime...
+These kfuncs are KF_IMPLICIT_ARGS but still carries 'struct bpf_prog_aux *'
+Fix: boot a kernel whose BTF was generated with pahole >= 1.26. See kernel commit 9edd04c4189e
+```
+
+`scx.service` entra en restart-loop (`failed exit 1`). `sched_ext` queda `state: disabled` y el scheduler vuelve a `EEVDF`. No rompe los perfiles `ryzen_smu` (`PPT`/`Tctl`/`GPU` siguen mandando) — LAVD solo añade compactación de cores (`power-saver -> powersave` `+0.3-0.8W` vs `EEVDF`). Ver [Ryzen tuning (LAVD vs EPP)](/guides/ryzen-tuning/) para tabla completa.
+
+```bash
+systemctl status scx.service   # failed BTF pahole <1.26
+cat /sys/kernel/sched_ext/state  # disabled hoy -> enabled cuando llegue 7.2.4
+journalctl -u scx.service --no-pager -n 30
+# opcional silenciar loop hasta 7.2.4:
+sudo systemctl disable --now scx.service
+# tras kernel 7.2.4: sudo systemctl enable --now scx.service
+```
+
 ## Checklist
 
 - [ ] Understand remove-before-install ordering and why it exists.
 - [ ] `tsflags=noscripts` + manual `depmod -a $KVER` pattern copied if modifying kernel modules.
 - [ ] After rebase on `niri-cachyos`: `uname -r` shows `cachyos`, one `/usr/lib/modules/<kver>` with `vmlinuz` + `modules.dep`, `scx.service` is active (or correctly skipped on `niri`).
+- [ ] `scx.service` `failed BTF pahole <1.26` on 7.2.3 is expected — not your config; fix is next `kernel-cachyos` with `pahole >=1.26`.
 - [ ] Secure Boot note read if applicable.
 
 ## Next step
 
-`scx` tuning in `/etc/default/scx` — try `--powersave` vs `--autopower`. Build broke? → [Debug a build](/guides/debug-build/).
+Ryzen `PPT`/`Tctl`/`GPU` + `autocambio ADP1` → [Ryzen 7730U tuning](/guides/ryzen-tuning/). `scx` tuning in `/etc/default/scx` — try `--powersave` vs `--autopower`. Build broke? → [Debug a build](/guides/debug-build/).

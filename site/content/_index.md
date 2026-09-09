@@ -18,6 +18,7 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 - **Add a system file** → [Add system file](/guides/add-system-file/)
 - **Add a systemd service** → [Add systemd service](/guides/add-systemd-service/)
 - **Swap the CachyOS kernel** → [CachyOS kernel](/guides/kernel-cachyos/)
+- **Tune Ryzen 7730U (6W/15W/9W + GPU + 80%)** → [Ryzen 7730U tuning](/guides/ryzen-tuning/)
 - **Debug a failing build** → [Debug build](/guides/debug-build/)
 
 ## Where to go next
@@ -25,7 +26,7 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 | Section | What it covers | Status |
 |---------|---------------|--------|
 | [Concepts](/concepts/) | BlueBuild, Atomic/OStree, repo-structure | 3 pages — live |
-| [Guides](/guides/) | 6 task guides above | 6 pages — live |
+| [Guides](/guides/) | 7 task guides above | 7 pages — live |
 | [Reference](/reference/) | Recipe anatomy, modules catalog, troubleshooting | 3 pages — live |
 | [Legacy `docs/`](../../docs/) | Archived Omarchy mappings (preserved) | Kept as appendix source |
 
@@ -36,7 +37,7 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 - **Offline FlexSearch** + dark mode toggle.
 
 {{< callout type="info" >}}
-All 12 content pages are live (3 Concepts + 6 Guides + 3 Reference) — search `COPR` / `scx` / `kernel` to try offline FlexSearch.
+All 13 content pages are live (3 Concepts + 7 Guides + 3 Reference) — search `COPR` / `scx` / `kernel` / `ryzen` to try offline FlexSearch.
 {{< /callout >}}
 
 ## Quick path

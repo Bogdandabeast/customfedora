@@ -189,6 +189,15 @@ modules:
     scripts:
       - downloadlatestwinboatrpm.sh
 
+  # Ryzen 7730U SMU tuning — ryzen_smu for PPT (6W battery / 30W perf)
+  # + EC 80% limit. See files/justfiles/ryzen-tuning.just (`just ryzen-setup`).
+  # Compila ryzen_smu contra el kernel CachyOS (kernel-cachyos-devel-matched
+  # ya está en la imagen tras el swap) y deja /usr/local/src/ryzen_smu
+  # para hotfix recompila en futuros ostree updates que cambien KVER.
+  - type: script
+    scripts:
+      - build-ryzen-smu.sh
+
   # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
   # fish, lazygit, lazydocker and bun are then installed from brew by
   # brew-install-fish.service / brew-install-cli.service (see files/system).
@@ -217,6 +226,17 @@ modules:
         # si el kernel no tiene sched_ext. scx-scheds viene del COPR
         # bieszczaders/kernel-cachyos-addons.
         - scx.service
+        # Ryzen 7730U tuning — Modern 15 B7M B7M 7730U Cezanne (PPT + EC 80%).
+        # ryzen_smu_loader repara /lib/modules/*/extra/ryzen_smu.ko tras cada
+        # ostree update que cambie KVER (hotfix recompila desde
+        # /usr/local/src/ryzen_smu). ryzen-profiles-boot aplica perf/battery
+        # según ADP1 al arrancar, udev (99-ryzen-profiles.rules) al enchufar.
+        # msi-battery-80 escribe EC[0xEF]=0xD0 (80% | BIT7); requiere
+        # ec_sys.write_support=Y — ya viene en /etc/modprobe.d/ec_sys.conf
+        # y como kargs (rpm-ostree kargs si reinstalaste con `just ryzen-setup`).
+        - ryzen_smu_loader.service
+        - ryzen-profiles-boot.service
+        - msi-battery-80.service
 
   - type: default-flatpaks
     configurations:

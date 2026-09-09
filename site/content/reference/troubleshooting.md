@@ -32,7 +32,11 @@ Common failures:
 | File not present after rebase | Path under `files/system` wrong (e.g. `etc/niri` vs `usr/etc/niri`) | Match final `/` path exactly; `destination: /` means `files/system/etc` → `/etc` |
 | `modules.dep is missing. Did you run depmod?` | Kernel installed without `tsflags=noscripts` + manual `depmod` | See `recipe.niri-cachyos.yml` `containerfile` snippet — `depmod -a $KVER` required |
 | `kernel-cachyos` removed after install | `remove: [kernel]` after `install: [kernel-cachyos]` (Provides: kernel) | Remove stock kernel *before* installing CachyOS; order matters |
-| `scx.service` always fails | `ConditionPathIsDirectory` not met (non-CachyOS kernel) | Expected on `niri` flavour — `scx` only on `niri-cachyos` |
+| `scx.service` always fails (`BTF malformed ... pahole < 1.26`) | `kernel-cachyos 7.2.3` built with `pahole < 1.26` — all `scx_*` fail | Expected until `kernel-cachyos 7.2.4` with `pahole >=1.26`; does not affect Ryzen `PPT` — `EEVDF` runs (`sched_ext state: disabled`). `sudo systemctl disable --now scx.service` to silence loop |
+| `ryzen-profiles` `max 2000000` after `power-saver` | `PPD power-saver` clamps `scaling_max` to `2.0GHz` | Re-apply profile: `just ryzen-perf` / `just ryzen-silent-gaming on` / `just ryzen-battery` — they set `2900000`/`2200000`/`4547946` |
+| `silent-gaming` stays `9W` on battery | Old `ryzen-battery-hook` respected flag | Fixed: battery hook now deletes flag and goes `ULTRA 6W` on `ADP1=0`; `silent on` refuses without AC |
+| `EC[0xEF]=0x80` after `upgrade` | `hotfix` not rebooted with `ec_sys=Y` before upgrade | `just ryzen-setup` + `systemctl reboot` first (writes `0xD0`), then `rpm-ostree upgrade` + `reboot` — see [Ryzen tuning](/guides/ryzen-tuning/) |
+| `scx.service` fails only on `niri` | `ConditionPathIsDirectory` not met (non-CachyOS kernel) | Expected on `niri` flavour — `scx` only on `niri-cachyos` |
 | `cosign` verify fails | Wrong `cosign.pub` or tag SHA drift | Use `cosign.pub` at repo root; references use derivable markers, no hardcoded SHA |
 
 ## Checklist
