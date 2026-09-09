@@ -1,0 +1,4 @@
+{{- /* hint → callout alias for Book fallback (W1). Book uses {{< hint warning >}}; Hextra uses {{< callout >}}. */ -}}
+{{- $type := .Get "type" | default (.Get 0) | default "info" -}}
+{{- $raw := .InnerDeindent -}}
+<div class="book-hint {{ $type }}">{{ $raw | markdownify }}</div>

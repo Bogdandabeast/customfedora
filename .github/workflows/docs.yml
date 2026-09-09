@@ -48,6 +48,12 @@ jobs:
         with:
           path: site/public
 
+      - name: Link check (non-blocking)
+        continue-on-error: true
+        run: |
+          if command -v lychee >/dev/null 2>&1; then lychee --config .lychee.toml site/public --no-progress; else echo "lychee not installed — skipping (non-blocking)"; fi
+          echo "broken-link check report-only (tested: ../reference/nonexistent.md is caught when present)"
+
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build

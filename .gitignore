@@ -12,3 +12,4 @@ site/.hugo_build.lock
 node_modules/
 .husky/_/
 
+.agents/

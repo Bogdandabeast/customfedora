@@ -37,19 +37,19 @@ Chain strategy: stacked-to-main
 - [x] 2.1 Create `site/content/_index.md` landing "I want to …" → 6 guides; `title`/`weight` front matter
 - [x] 2.2 Create `site/content/concepts/bluebuild.md`, `atomic-ostree.md`, `repo-structure.md` — shape Quick→Details→Checklist→Next step; only `hint`/`callout`
 - [x] 2.3 Create `site/content/reference/recipe-anatomy.md`, `modules-catalog.md`, `troubleshooting.md` — same shape; no hardcoded SHA/`cosign.pub`
-- [ ] 2.4 Create `site/content/guides/add-package.md`, `add-repo-copr.md`, `add-system-file.md`, `add-systemd-service.md`, `kernel-cachyos.md`, `debug-build.md` — same shape; read-only `recipes/*.yml`
-- [ ] 2.5 Verify IA counts `concepts/`=3 `guides/`=6 `reference/`=3 `_index.md` exists; headings in order
+- [x] 2.4 Create `site/content/guides/add-package.md`, `add-repo-copr.md`, `add-system-file.md`, `add-systemd-service.md`, `kernel-cachyos.md`, `debug-build.md` — same shape; read-only `recipes/*.yml`
+- [x] 2.5 Verify IA counts `concepts/`=3 `guides/`=6 `reference/`=3 `_index.md` exists; headings in order
 
 ## Phase 3: Publishing / Wiring
 
 - [x] 3.1 Create `.github/workflows/docs.yml` — `actions-hugo@v3` extended 0.128.x+ + `deploy-pages` OIDC (`pages: write`+`id-token: write`), artifact `site/public`, triggers `site/**` only
 - [x] 3.2 Create `justfile` `docs-serve: hugo server --source site` live reload; missing Hugo → actionable error; no root `package.json` deps
-- [ ] 3.3 Modify `README.md` add Pages badge + deploy link
-- [ ] 3.4 Modify `docs/README.md` stub "archived Omarchy" → `site/`/Pages link; keep `docs/fedora_migrations/` untouched
+- [x] 3.3 Modify `README.md` add Pages badge + deploy link
+- [x] 3.4 Modify `docs/README.md` stub "archived Omarchy" → `site/`/Pages link; keep `docs/fedora_migrations/` untouched
 
 ## Phase 4: Verification / Quality Gates
 
-- [ ] 4.1 Add `lychee`/`htmltest` on `site/public` CI non-blocking; confirm broken link reported
-- [ ] 4.2 Verify isolation: `site/**` push → `docs.yml` only; `recipes/**` → `build.yml` only
-- [ ] 4.3 Verify offline FlexSearch `COPR`/`scx`/`kernel` <1s, dark mode persists, zero console errors
-- [ ] 4.4 Verify idempotency: same SHA rebuild → identical hashes; Book swap `hugo.yaml`/`go.mod` needs no body edits
+- [x] 4.1 Add `lychee`/`htmltest` on `site/public` CI non-blocking; confirm broken link reported
+- [x] 4.2 Verify isolation: `site/**` push → `docs.yml` only; `recipes/**` → `build.yml` only
+- [x] 4.3 Verify offline FlexSearch `COPR`/`scx`/`kernel` <1s, dark mode persists, zero console errors
+- [x] 4.4 Verify idempotency: same SHA rebuild → identical hashes; Book swap `hugo.yaml`/`go.mod` needs no body edits

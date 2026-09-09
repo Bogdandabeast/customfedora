@@ -1,0 +1,5 @@
+# lychee link checker — non-blocking in CI (docs.yml link-check job)
+# Usage: lychee --config .lychee.toml site/public
+exclude = ["https://github.com/bogdandabeast/customfedora/edit/.*"]
+timeout = 20
+max_concurrency = 8

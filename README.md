@@ -1,4 +1,6 @@
-# customfedora &nbsp; [![bluebuild build badge](https://github.com/bogdandabeast/customfedora/actions/workflows/build.yml/badge.svg)](https://github.com/bogdandabeast/customfedora/actions/workflows/build.yml)
+# customfedora &nbsp; [![bluebuild build badge](https://github.com/bogdandabeast/customfedora/actions/workflows/build.yml/badge.svg)](https://github.com/bogdandabeast/customfedora/actions/workflows/build.yml) [![docs badge](https://github.com/bogdandabeast/customfedora/actions/workflows/docs.yml/badge.svg)](https://bogdandabeast.github.io/customfedora/)
+
+**Docs:** [bogdandabeast.github.io/customfedora](https://bogdandabeast.github.io/customfedora/) — BlueBuild recipes, modules, and live image pipeline (Hugo + Hextra, `site/`). Local: `just docs-serve` → http://localhost:1313 · `hugo --minify --source site` (no Node).
 
 See the [BlueBuild docs](https://blue-build.org/how-to/setup/) for quick setup instructions for setting up your own repository based on this template.
 

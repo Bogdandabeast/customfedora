@@ -13,19 +13,19 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 
 ## I want to …
 
-- **Add a package** → [Add package guide](/guides/add-package/) *(PR 3 — placeholder)*
-- **Add a COPR / external repo** → [Add COPR repo](/guides/add-repo-copr/) *(placeholder)*
-- **Add a system file** → [Add system file](/guides/add-system-file/) *(placeholder)*
-- **Add a systemd service** → [Add systemd service](/guides/add-systemd-service/) *(placeholder)*
-- **Tweak the CachyOS kernel** → [Kernel — CachyOS](/guides/kernel-cachyos/) *(placeholder)*
-- **Debug a failing build** → [Debug build](/guides/debug-build/) *(placeholder)*
+- **Add a package** → [Add package](/guides/add-package/)
+- **Add a COPR / external repo** → [Add COPR repo](/guides/add-repo-copr/)
+- **Add a system file** → [Add system file](/guides/add-system-file/)
+- **Add a systemd service** → [Add systemd service](/guides/add-systemd-service/)
+- **Swap the CachyOS kernel** → [CachyOS kernel](/guides/kernel-cachyos/)
+- **Debug a failing build** → [Debug build](/guides/debug-build/)
 
 ## Where to go next
 
 | Section | What it covers | Status |
 |---------|---------------|--------|
 | [Concepts](/concepts/) | BlueBuild, Atomic/OStree, repo-structure | 3 pages — live |
-| [Guides](/guides/) | 6 task guides above | 6 pages — PR 3 (placeholders) |
+| [Guides](/guides/) | 6 task guides above | 6 pages — live |
 | [Reference](/reference/) | Recipe anatomy, modules catalog, troubleshooting | 3 pages — live |
 | [Legacy `docs/`](../../docs/) | Archived Omarchy mappings (preserved) | Kept as appendix source |
 
@@ -36,7 +36,7 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 - **Offline FlexSearch** + dark mode toggle.
 
 {{< callout type="info" >}}
-Concepts + Reference are live (PR 2). Guides resolve in PR 3 — placeholder links still build.
+All 12 content pages are live (3 Concepts + 6 Guides + 3 Reference) — search `COPR` / `scx` / `kernel` to try offline FlexSearch.
 {{< /callout >}}
 
 ## Quick path
