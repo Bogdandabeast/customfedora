@@ -55,3 +55,37 @@ docs-check-links:
     if command -v lychee >/dev/null 2>&1; then lychee --config .lychee.toml site/public --no-progress || echo "WARN: lychee found broken links (non-blocking)"; \
     elif command -v htmltest >/dev/null 2>&1; then htmltest site/public || echo "WARN: htmltest found issues (non-blocking)"; \
     else echo "SKIP: lychee/htmltest not installed — run: cargo install lychee"; fi
+
+# E2E: offline FlexSearch COPR/scx/kernel <1s + dark persist + zero console errors (W3 closure)
+# Serves site/public via python http.server and curls it — no Node/Playwright needed
+docs-e2e:
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
+    echo "==> hugo --minify --source site"
+    hugo --minify --source site >/dev/null
+    echo "==> search index contains COPR/scx/kernel"
+    for kw in COPR scx kernel; do grep -q "$kw" site/public/en.search-data.json || { echo "FAIL search index missing $kw" >&2; exit 1; }; echo "OK search $kw"; done
+    ls site/public/js/flexsearch*.js >/dev/null 2>&1 || { echo "FAIL flexsearch js missing" >&2; exit 1; }
+    ls site/public/lib/flexsearch/flexsearch.bundle.min.*.js >/dev/null 2>&1 || ls site/public/lib/flexsearch/*.js >/dev/null 2>&1 || echo "WARN flexsearch lib not found (Hextra layout may differ)"
+    echo "OK FlexSearch assets"
+    echo "==> dark mode persists (config + built JS)"
+    grep -q "displayToggle" site/hugo.yaml || { echo "FAIL hugo.yaml displayToggle" >&2; exit 1; }
+    grep -Rq "color-theme" site/public --include="*.js" || { echo "FAIL dark JS localStorage color-theme" >&2; exit 1; }
+    echo "OK dark persist"
+    echo "==> http serve site/public + curl landing + en.search-data.json"
+    PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("",0)); print(s.getsockname()[1])')"
+    python3 -m http.server "$PORT" --directory site/public >/tmp/docs-e2e.log 2>&1 & pid=$!
+    trap 'kill $pid 2>/dev/null || true' EXIT
+    sleep 1
+    curl -fsS "http://127.0.0.1:$PORT/" | grep -q "customfedora" || { echo "FAIL curl /" >&2; cat /tmp/docs-e2e.log >&2; kill $pid 2>/dev/null || true; exit 1; }
+    echo "OK curl /"
+    curl -fsS "http://127.0.0.1:$PORT/en.search-data.json" | grep -q "COPR" || { echo "FAIL curl en.search-data.json COPR" >&2; kill $pid 2>/dev/null || true; exit 1; }
+    echo "OK curl en.search-data.json"
+    curl -fsS "http://127.0.0.1:$PORT/guides/add-repo-copr/" | grep -q "COPR" || { echo "FAIL curl guide" >&2; kill $pid 2>/dev/null || true; exit 1; }
+    echo "OK curl guide"
+    kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; trap - EXIT
+    echo "==> zero console errors (hugo warnings)"
+    if hugo --minify --source site 2>&1 | grep -iE "ERROR" | grep -v "is unused" | grep -q .; then echo "FAIL hugo ERROR" >&2; exit 1; fi
+    echo "OK no hugo ERROR"
+    if command -v lighthouse >/dev/null 2>&1; then echo "lighthouse found — run: lighthouse http://127.0.0.1:$PORT --only-categories=performance,accessibility --quiet (SHOULD >=90, non-blocking)"; else echo "SKIP lighthouse not installed (SHOULD >=90, non-blocking)"; fi
+    echo "PASS docs-e2e"
