@@ -227,15 +227,19 @@ modules:
         # bieszczaders/kernel-cachyos-addons.
         - scx.service
         # Ryzen 7730U tuning — Modern 15 B7M B7M 7730U Cezanne (PPT + EC 80%).
+        # Solo en niri-cachyos (esta maquina). Ver files/justfiles/ryzen-tuning.just.
         # ryzen_smu_loader repara /lib/modules/*/extra/ryzen_smu.ko tras cada
         # ostree update que cambie KVER (hotfix recompila desde
         # /usr/local/src/ryzen_smu). ryzen-profiles-boot aplica perf/battery
-        # según ADP1 al arrancar, udev (99-ryzen-profiles.rules) al enchufar.
-        # msi-battery-80 escribe EC[0xEF]=0xD0 (80% | BIT7); requiere
-        # ec_sys.write_support=Y — ya viene en /etc/modprobe.d/ec_sys.conf
-        # y como kargs (rpm-ostree kargs si reinstalaste con `just ryzen-setup`).
+        # según ADP1 al arrancar, udev (99-ryzen-profiles.rules) al enchufar,
+        # ryzen-resume tras suspend/hibernate (logind lid). msi-battery-80
+        # escribe EC[0xEF]=0xD0 (80% | BIT7); requiere ec_sys.write_support=Y
+        # — ya viene en /etc/modprobe.d/ec_sys.conf y como kargs (rpm-ostree
+        # kargs si reinstalaste con just ryzen-setup — una vez, persiste
+        # tras kernel updates porque kargs y /etc sobreviven a ostree).
         - ryzen_smu_loader.service
         - ryzen-profiles-boot.service
+        - ryzen-resume.service
         - msi-battery-80.service
 
   - type: default-flatpaks

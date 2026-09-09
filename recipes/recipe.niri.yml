@@ -127,14 +127,6 @@ modules:
     scripts:
       - downloadlatestwinboatrpm.sh
 
-  # Ryzen 7730U SMU tuning — ryzen_smu for PPT (6W battery / 30W perf)
-  # + EC 80% limit. Only the kernel header for the STOCK kernel is needed
-  # here (niri image uses base-main stock kernel). The ko is built against
-  # that stock KVER, not against CachyOS.
-  - type: script
-    scripts:
-      - build-ryzen-smu.sh
-
   # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
   # fish, lazygit, lazydocker and bun are then installed from brew by
   # brew-install-fish.service / brew-install-cli.service (see files/system).
@@ -161,12 +153,8 @@ modules:
         # Power profiles (self-enables on install, but ensure it stays enabled;
         # Kinoite ships it masked and that state survives rebases)
         - power-profiles-daemon.service
-        # Ryzen 7730U tuning — Modern 15 B7M B7M 7730U (PPT + EC 80%).
-        # See ryzen-tuning.just (`just ryzen-setup`). Services are the same
-        # as in niri-cachyos: ryzen_smu built against stock KVER here.
-        - ryzen_smu_loader.service
-        - ryzen-profiles-boot.service
-        - msi-battery-80.service
+        # Note: Ryzen 7730U tuning (6W/15W/9W + EC 80% + LAVD) lives only in
+        # recipe.niri-cachyos.yml — this generic niri image is for other machines.
 
   - type: default-flatpaks
     configurations:

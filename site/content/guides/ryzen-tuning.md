@@ -81,8 +81,10 @@ Wifi `power_save` se deja siempre `off` (no se toca) para evitar cortes en `mt79
 | `files/justfiles/ryzen-tuning.just` | `just` de imagen (importado en `justfile` raíz) |
 | `files/scripts/build-ryzen-smu.sh` | build-time `ryzen_smu` `0.1.7` + `kernel-cachyos-devel-matched` |
 
-Enabled en `recipes/recipe.niri-cachyos.yml` (y `recipe.niri.yml` stock kernel):
-`ryzen_smu_loader.service` + `ryzen-profiles-boot.service` + `msi-battery-80.service` (`battery/perf/silent` son `Type=oneshot` triggered, no enabled).
+Enabled solo en `recipes/recipe.niri-cachyos.yml` (esta máquina):
+`ryzen_smu_loader.service` + `ryzen-profiles-boot.service` + `ryzen-resume.service` + `msi-battery-80.service` (`battery/perf/silent` son `Type=oneshot` triggered, no enabled). `recipe.niri.yml` no lleva tuning — imagen genérica para otras máquinas.
+
+SMU=`/sys/kernel/ryzen_smu_drv/smu_args` es **volátil** (se pierde al `suspend`/`hibernate` según `logind lid`). Además de `boot` y `udev ADP1`, `ryzen-resume.service` (`WantedBy suspend/hibernate/hybrid-sleep/suspend-then-hibernate`) re-aplica `ADP1` + `EC 80%` al despertar, así `just setup-hibernate`/`setup-lid-lock` no pierden `PPT 6W`/`FRIO`/`SILENT` ni el límite 80%.
 
 ### 3. Límite 80% — cómo verificar y qué pasa tras `upgrade`
 
@@ -95,11 +97,13 @@ just ryzen-status
 # msi-battery-80.service enabled
 ```
 
-Persistencia (`Fedora Atomic`):
+Persistencia (`Fedora Atomic`) — **una sola vez**, no cada kernel:
 
-* `rpm-ostree kargs --append=ec_sys.write_support=Y` -> `Staging` -> survives `upgrade` (va en `ostree admin`).
-* `/etc/modprobe.d/ec_sys.conf` + `msi-battery-80.service` -> `/etc` es writable, no se borra.
-* `/usr/local -> /var/usrlocal` -> survives; `/lib/modules/*/extra/ryzen_smu.ko` es `hotfix` y lo recompila `ryzen_smu_loader` si cambia `KVER`.
+* `rpm-ostree kargs --append=ec_sys.write_support=Y` -> `Staging` -> **persiste tras `upgrade`/`update` y tras cada cambio de `KVER`** (`ostree admin kargs` heredados, en `/proc/cmdline` y `/boot/loader/entries`). No toques hasta `just ryzen-kargs-remove`.
+* `/etc/modprobe.d/ec_sys.conf` + `msi-battery-80.service` + `ryzen_*.service` + `99-ryzen-profiles.rules` -> `/etc` es writable, **sobrevive** a `ostree` (no en `/usr`).
+* `/usr/local -> /var/usrlocal` + `build-ryzen-smu.sh` en imagen `niri-cachyos` -> `ryzen_smu.ko` va **baked** en `/usr/lib/modules/<kver>/extra` para ese `kver` (no hace falta `hotfix`). Si un `upgrade` trae `KVER` nuevo, la **nueva imagen** ya lleva el `.ko` para ese `kver`; `ryzen_smu_loader` solo es fallback recompila `hotfix` si `ostree admin unlock` o imagen sin `ko`.
+
+En corto: `just ryzen-setup` **una vez** tras reinstalar; los sucesivos `rpm-ostree upgrade` + `reboot` heredan todo solo (kargs + /etc + .ko baked). Ver [Debug](/guides/debug-build/) si `ryzen_smu` faltó tras `KVER` raro.
 
 **Orden correcto tras reinstalar o si nunca reiniciaste desde `just ryzen-setup`:**
 
