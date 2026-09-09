@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           # Keep in sync with the bluebuild job matrix below.
-          for recipe in recipe.niri.yml recipe.niri-cachyos.yml; do
+          for recipe in recipe.niri.yml recipe.niri-cachyos.yml recipe.nvidia.yml; do
             echo "==> Validating recipes/${recipe}"
             bluebuild validate "./recipes/${recipe}"
           done
@@ -49,10 +49,8 @@ jobs:
       fail-fast: false # stop GH from cancelling all matrix builds if one fails
       matrix:
         recipe:
-          # !! Add your recipes here
-          #- recipe.yml # temporarily disabled
           - recipe.niri.yml
-          #- recipe.nvidia.yml  # disabled
+          - recipe.nvidia.yml
           - recipe.niri-cachyos.yml
     steps:
       # the build is fully handled by the reusable github action

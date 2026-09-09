@@ -1,5 +1,0 @@
-modules:
-  - type: files
-    files:
-      - source: scripts/sway.desktop # copies `files/my-image/usr/*` to `/usr/` inside the image
-        destination: /usr/share/wayland-sessions/sway.desktop

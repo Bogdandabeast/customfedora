@@ -1,6 +1,0 @@
-modules:
-  - type: systemd
-    # this example disables automatic flatpak updates and enables a custom service unit for all users
-    system:
-      enabled:
-        - warp-svc.service

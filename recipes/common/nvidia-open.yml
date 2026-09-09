@@ -1,5 +1,0 @@
-modules:
-  - type: akmods
-    install:
-      - nvidia-open
-   

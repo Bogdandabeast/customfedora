@@ -4,13 +4,14 @@ weight: 30
 description: "Where recipes, modules, and the files overlay live — and how niri, niri-cachyos, and nvidia flavours relate."
 ---
 
-Two active recipes share one `files/system/` overlay. Flavour is chosen at rebase time.
+Three active recipes share one `files/system/` overlay. Flavour is chosen at rebase time.
 
 ## Quick path
 
 1. `recipes/recipe.niri.yml` — default Niri + Noctalia on `base-main:latest`.
 2. `recipes/recipe.niri-cachyos.yml` — same stack plus CachyOS kernel + `scx_lavd`.
-3. `files/system/` → `/` in the image; `recipes/common/` holds extractable `dnf`/`files` fragments.
+3. `recipes/recipe.nvidia.yml` — same as niri plus `akmods` `nvidia-open` (Turing+).
+4. `files/system/` → `/` in the image.
 
 ## Details
 
@@ -18,8 +19,7 @@ Two active recipes share one `files/system/` overlay. Flavour is chosen at rebas
 |------|------|---------------|
 | `recipes/recipe.niri.yml` | Canonical desktop (niri, noctalia, sddm, nautilus, flatpaks) | `niri` |
 | `recipes/recipe.niri-cachyos.yml` | Niri plus kernel swap (`containerfile` + `tsflags=noscripts` + `depmod`), `scx-scheds`, `scx.service` | `niri-cachyos` |
-| `recipes/recipe.yml`, `recipe.sway*.yml` | Legacy Sway / bluefin-dx base — kept for reference | Sway |
-| `recipes/common/*.yml` | Reusable fragments (`from-file: common/...`) — not auto-included in Niri recipes | Shared |
+| `recipes/recipe.nvidia.yml` | Same as niri plus `akmods` `base: main` `nvidia-open` | `nvidia` |
 | `files/system/etc/niri/config.kdl` | Niri keybindings, spawns Noctalia + alacritty/Brave | All Niri |
 | `files/system/usr/lib/systemd/` | `scx.service`, `brew-install-*.service`, `noctalia-lid-mode-sync.service` | Conditional |
 | `files/system/etc/default/scx` | `SCX_SCHEDULER=scx_lavd` + `SCX_FLAGS=--autopower` | CachyOS only |
@@ -35,8 +35,8 @@ Base is `ghcr.io/ublue-os/base-main` (minimal Atomic, no DE). SDDM, Nautilus/`gv
 
 ## Checklist
 
-- [ ] Can name which recipe builds `ghcr.io/...:niri` vs `:niri-cachyos`.
-- [ ] Know `files/system/` is shared — changes affect both flavours unless guarded by a module.
+- [ ] Can name which recipe builds `ghcr.io/...:niri` vs `:niri-cachyos` vs `:nvidia`.
+- [ ] Know `files/system/` is shared — changes affect all flavours unless guarded by a module.
 - [ ] Know `image-version` is `latest` today; pinning requires a conscious commit.
 
 ## Next step

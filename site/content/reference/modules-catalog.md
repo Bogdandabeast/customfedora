@@ -4,7 +4,7 @@ weight: 20
 description: "Every BlueBuild module type used in this repo — files, dnf, script, systemd, brew, flatpak, containerfile and more — with real examples."
 ---
 
-Modules are the only way the recipe changes the image. This catalog lists each type as used in `recipe.niri.yml` / `recipe.niri-cachyos.yml`.
+Modules are the only way the recipe changes the image. This catalog lists each type as used in `recipe.niri.yml` / `recipe.niri-cachyos.yml` / `recipe.nvidia.yml`.
 
 ## Quick path
 
@@ -24,8 +24,9 @@ Modules are the only way the recipe changes the image. This catalog lists each t
 | `default-flatpaks` | Declare Flatpaks (system + user) | `boot-install: true` list: Brave, Librewolf, Steam, VLC, KeePassXC… |
 | `containerfile` | Raw `RUN` snippet when dnf order matters | CachyOS kernel swap: remove stock kernel, `dnf5 install --setopt=tsflags=noscripts kernel-cachyos*`, `depmod -a` |
 | `initramfs` | Regenerate initramfs after kernel swap | Last module in `recipe.niri-cachyos.yml` |
+| `akmods` | Inject kernel modules (NVIDIA open) | `base: main + nvidia-open` — only in `recipe.nvidia.yml` |
 | `justfiles` | Expose `just` recipes from image | `type: justfiles` (no args) |
-| `signing` | Configure image signing policy | Legacy `recipe.yml` (bluefin-dx); Niri recipes inherit via Action `cosign_private_key` |
+| `signing` | Configure image signing policy | Legacy; Niri recipes inherit via Action `cosign_private_key` |
 
 Minimal examples (copy-pasteable, trimmed):
 
