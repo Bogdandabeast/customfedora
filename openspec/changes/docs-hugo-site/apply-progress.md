@@ -2,7 +2,7 @@
 
 **Change**: docs-hugo-site
 **Mode**: Standard (strict_tdd false)
-**Slice**: PR 1 — Scaffold+CI (Phase 1 + parts of Phase 3)
+**Slice**: PR 2 — Concepts+Reference (Phase 2 partial, stacked on PR 1)
 **Chain strategy**: stacked-to-main
 **Date**: 2026-09-09
 
@@ -14,67 +14,75 @@
 - [x] 1.4 Update `.gitignore` ignore `site/public/` and `site/resources/` (+ .hugo_build.lock)
 - [x] 1.5 Verify `hugo --minify --source site` without Node → `site/public/index.html`; invalid config fails non-zero
 - [x] 2.1 Create `site/content/_index.md` landing "I want to …" → 6 guide placeholders; title/weight front matter
+- [x] 2.2 Create `site/content/concepts/bluebuild.md`, `atomic-ostree.md`, `repo-structure.md` — shape Quick→Details→Checklist→Next step; only `hint`/`callout`
+- [x] 2.3 Create `site/content/reference/recipe-anatomy.md`, `modules-catalog.md`, `troubleshooting.md` — same shape; no hardcoded SHA/`cosign.pub`
 - [x] 3.1 Create `.github/workflows/docs.yml` — actions-hugo@v3 extended 0.165 + deploy-pages OIDC (pages:write id-token:write), artifact site/public, triggers site/** only
 - [x] 3.2 Create `justfile` docs-serve/docs-build/docs-check; missing Hugo → actionable error; no root package.json deps
 
-## Files Changed
+## Files Changed (cumulative)
 
 | File | Action | What |
 |------|--------|------|
-| `site/hugo.yaml` | Created | baseURL `https://bogdandabeast.github.io/customfedora/`, module hextra, search flexsearch forward, theme system toggle, menu Concepts/Guides/Reference |
-| `site/go.mod` | Created | `module github.com/bogdandabeast/customfedora/site`, require hextra v0.12.3 |
-| `site/go.sum` | Created | sums for v0.12.3 |
-| `site/assets/css/custom.css` | Created | minimal overrides, --hextra-max-content-width |
-| `site/content/_index.md` | Created | landing with I want to → 6 placeholders, Quick path/Details/Checklist table, callout |
-| `site/content/docs/_index.md` | Created | placeholder section |
-| `site/content/concepts/_index.md` | Created | placeholder |
-| `site/content/guides/_index.md` | Created | placeholder |
-| `site/content/reference/_index.md` | Created | placeholder |
-| `.gitignore` | Modified | ignore site/public/, site/resources/, .hugo_build.lock |
-| `justfile` | Created | docs-serve with hugo missing guard, docs-build, docs-check |
-| `.github/workflows/docs.yml` | Created | OIDC Pages deploy, paths site/**, publish_dir site/public |
+| `site/hugo.yaml` | Created (PR1) | baseURL `https://bogdandabeast.github.io/customfedora/`, module hextra, search flexsearch forward, theme system toggle |
+| `site/go.mod` | Created (PR1) | `module github.com/bogdandabeast/customfedora/site`, require hextra v0.12.3 |
+| `site/go.sum` | Created (PR1) | sums for v0.12.3 |
+| `site/assets/css/custom.css` | Created (PR1) | minimal overrides, --hextra-max-content-width |
+| `site/content/_index.md` | Modified (PR2) | landing live: Concepts/Reference → live, Guides placeholders, callout updated |
+| `site/content/docs/_index.md` | Created (PR1) | placeholder section |
+| `site/content/concepts/_index.md` | Created (PR1) | placeholder |
+| `site/content/guides/_index.md` | Created (PR1) | placeholder |
+| `site/content/reference/_index.md` | Created (PR1) | placeholder |
+| `site/content/concepts/bluebuild.md` | Created (PR2) | What is BlueBuild: recipe→module→Containerfile, real snippet from recipe.niri.yml, table, Quick→Next step |
+| `site/content/concepts/atomic-ostree.md` | Created (PR2) | Atomic OSTree: rebase/rollback, ro /usr, cosign.pub derivable, table vs traditional |
+| `site/content/concepts/repo-structure.md` | Created (PR2) | Repo structure + flavours: base-main, niri vs niri-cachyos, files/system shared, image-version latest |
+| `site/content/reference/recipe-anatomy.md` | Created (PR2) | Recipe anatomy: header fields, real 30-line snippet, order matters, bluebuild validate |
+| `site/content/reference/modules-catalog.md` | Created (PR2) | Modules catalog: files/dnf/script/systemd/brew/flatpak/containerfile/initramfs/justfiles/signing with examples |
+| `site/content/reference/troubleshooting.md` | Created (PR2) | Files overlay map files/system→/ + table (niri, sddm, scx) + common failures (modules.dep, Provides: kernel, ConditionPath) |
+| `.gitignore` | Modified (PR1) | ignore site/public/, site/resources/, .hugo_build.lock |
+| `justfile` | Created (PR1) | docs-serve with hugo missing guard, docs-build, docs-check |
+| `.github/workflows/docs.yml` | Created (PR1) | OIDC Pages deploy, paths site/**, publish_dir site/public |
 
 ## Verification
 
-- `hugo --minify --source site` (pwd site) → 0, emits `site/public/index.html` (35K), no Node error — PASS
-- Invalid YAML append `invalid: [:` → `hugo --minify` exit 1 — PASS
-- `just docs-serve` with PATH stripped → actionable "hugo not found, brew/dnf" — PASS
-- `docs.yml` triggers: `on.push.paths: ["site/**", ".github/workflows/docs.yml"]` and `pull_request` same; `build.yml` has `paths-ignore: "**.md"` → site/** push docs only, recipes/** skips docs — PASS (static check)
-- `go mod tidy` without Node — PASS
+- `hugo --minify --source site` → 0, emits `site/public/index.html`, no Node error — PASS (101ms, 18 pages)
+- Headings order Quick→Details→Checklist→Next step in all 6 new pages — PASS (grep)
+- IA counts: `concepts/`=3, `reference/`=3, `guides/`=0 (expected until PR3), `_index.md` exists — PASS
+- No hardcoded cosign SHA/pub in reference pages (derivble marker only) — PASS
+- `site/content/_index.md` still builds; callout updated to live — PASS
+- `go mod tidy` without Node — PASS (from PR1, unchanged)
+- PR2 line budget: 294 lines new content + 2-line landing edit = ~296, under 400 — PASS
 
 ## Deviations from Design
 
-- **Hextra pin**: spec says v0.9.x + Hugo 0.128.x min. Implemented v0.12.3 + Hugo 0.146 min (0.165 in CI) because Hugo 0.165 (current brew) breaks v0.9.7 RSS template (`.Site.Author.email`). v0.12.3 is maintained, still vendored Tailwind via Hugo Pipes (no Node), and min version still satisfies "0.128.x+" (0.146 > 0.128, 0.165 used). Book fallback still one-line swap.
-- **languageCode**: removed deprecated top-level `languageCode: en-us` (Hugo 0.158 deprecated) → use `defaultContentLanguage: en` only; no functional change.
-- **go version**: go.mod is 1.27 (installed) vs Hextra's 1.21 — compatible, no impact.
-- **Section placeholders**: added `site/content/docs/_index.md` plus concepts/guides/reference placeholders to let Hextra render cleanly in PR1. Not in original Phase 1 but required for valid build and navigation; will be superseded by full 3+6+3 in PR2/3.
+- **Hextra pin**: as in PR1 — v0.12.3 + Hugo 0.146 min (0.165 CI) vs spec v0.9.x/0.128.x; compatible, no Node (carried).
+- **Spec vs slice naming**: task prompt listed `concepts/what-is-bluebuild.md` / `ostree-atomic.md` / `base-image-and-flavours.md` and `reference/files-overlay.md`; spec requires `bluebuild.md`, `atomic-ostree.md`, `repo-structure.md`, `troubleshooting.md`. Implemented spec filenames (contract) and merged requested topics into them: what-is-bluebuild→bluebuild, ostree-atomic→atomic-ostree, base-image-and-flavours + files-overlay→repo-structure + troubleshooting. Keeps IA 3+6+3 verification green.
+- **Files overlay location**: requested `reference/files-overlay.md` content is in `reference/troubleshooting.md` (overlay map + failures) and `concepts/repo-structure.md` (flavour overlay scope). Avoids 4th reference page that would break IA count.
+- **languageCode/go version**: as in PR1, unchanged.
 
 ## Issues Found
 
-- None blocking. Brew `hugo` 0.165 + `go` 1.27 installed during apply (Fedora had no go/hugo). Future CI must use setup-go 1.22 per workflow (pinned) — local uses 1.27, compatible.
+- None blocking. `hugo 0.165 extended` builds 6 new pages without warnings. Guides still placeholders — PR3 will fill 6.
 
 ## Remaining Tasks
 
-- [ ] 2.2 Create concepts 3 pages (bluebuild, atomic-ostree, repo-structure)
-- [ ] 2.3 Create reference 3 pages (recipe-anatomy, modules-catalog, troubleshooting)
 - [ ] 2.4 Create guides 6 pages (add-package, add-repo-copr, add-system-file, add-systemd-service, kernel-cachyos, debug-build)
-- [ ] 2.5 Verify IA counts + headings order
+- [ ] 2.5 Verify IA counts + headings order (final: 3+6+3)
 - [ ] 3.3 Modify README.md badge
 - [ ] 3.4 Modify docs/README.md stub
 - [ ] 4.1-4.4 Verification / Quality Gates (lychee, isolation E2E, search/dark, idempotency, Book swap)
 
 ## Workload / PR Boundary
 
-- Mode: stacked PR slice (PR 1 of 3, stacked-to-main)
-- Current work unit: Scaffold+CI
-- Boundary: starts from empty site/ → ends after hugo builds + workflow + justfile, before core content
-- Estimated review budget impact: 269 lines staged (177 scaffold + 92 CI) — under 400, clean rollback `git revert 2737210 1783cab`
-- Rollback: revert two commits, disable Pages; `docs/` untouched
+- Mode: stacked PR slice (PR 2 of 3, stacked-to-main)
+- Current work unit: Concepts+Reference (6 pages, cognitive-doc-design shape)
+- Boundary: starts from PR1 scaffold (18 pages total) → ends after 6 spec-compliant pages + landing edit, before Guides
+- Estimated review budget impact: ~296 lines added (294 content + 2 landing) — under 400, clean rollback `git revert HEAD` for PR2 slice; `docs/` untouched
+- Rollback: revert PR2 commit(s), site still builds (PR1 scaffold remains)
 
 ## Status
 
-8/18 tasks complete (Phase 1 + 2.1 + 3.1/3.2). Ready for next batch (PR 2 — Concepts+Reference). PR 1 is autonomous, verifiable, rollback-safe.
+10/18 tasks complete (Phase 1 + 2.1–2.3 + 3.1/3.2). Ready for next batch (PR 3 — Guides+entry points+checks). PR 2 is autonomous, verifiable, rollback-safe.
 
 ## Next Recommended
 
-sdd-apply PR 2 (Phase 2 concepts+reference) stacked on PR 1, or manual review of scaffold before continuing.
+sdd-apply PR 3 (Phase 2 guides 6 + Phase 3 badges/stubs + Phase 4 checks) stacked on PR2, or verify search/dark on `site/public` before continuing.

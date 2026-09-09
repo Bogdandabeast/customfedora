@@ -13,7 +13,7 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 
 ## I want to …
 
-- **Add a package** → [Add package guide](/guides/add-package/) *(coming in PR 2 — placeholder)*
+- **Add a package** → [Add package guide](/guides/add-package/) *(PR 3 — placeholder)*
 - **Add a COPR / external repo** → [Add COPR repo](/guides/add-repo-copr/) *(placeholder)*
 - **Add a system file** → [Add system file](/guides/add-system-file/) *(placeholder)*
 - **Add a systemd service** → [Add systemd service](/guides/add-systemd-service/) *(placeholder)*
@@ -24,9 +24,9 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 
 | Section | What it covers | Status |
 |---------|---------------|--------|
-| [Concepts](/concepts/) | BlueBuild, Atomic/OStree, repo-structure | 3 pages — PR 2 |
-| [Guides](/guides/) | 6 task guides above | 6 pages — PR 3 |
-| [Reference](/reference/) | Recipe anatomy, modules catalog, troubleshooting | 3 pages — PR 2 |
+| [Concepts](/concepts/) | BlueBuild, Atomic/OStree, repo-structure | 3 pages — live |
+| [Guides](/guides/) | 6 task guides above | 6 pages — PR 3 (placeholders) |
+| [Reference](/reference/) | Recipe anatomy, modules catalog, troubleshooting | 3 pages — live |
 | [Legacy `docs/`](../../docs/) | Archived Omarchy mappings (preserved) | Kept as appendix source |
 
 ## How this site is built
@@ -36,7 +36,7 @@ BlueBuild recipes for **Fedora Atomic (Niri + Noctalia)**. This site explains th
 - **Offline FlexSearch** + dark mode toggle.
 
 {{< callout type="info" >}}
-Future IA (3+6+3) is scaffolded. Placeholder links above will resolve once PR 2/3 land; the site still builds today.
+Concepts + Reference are live (PR 2). Guides resolve in PR 3 — placeholder links still build.
 {{< /callout >}}
 
 ## Quick path

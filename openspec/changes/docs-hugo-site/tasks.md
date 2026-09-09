@@ -35,8 +35,8 @@ Chain strategy: stacked-to-main
 ## Phase 2: Core Content — IA 3+6+3
 
 - [x] 2.1 Create `site/content/_index.md` landing "I want to …" → 6 guides; `title`/`weight` front matter
-- [ ] 2.2 Create `site/content/concepts/bluebuild.md`, `atomic-ostree.md`, `repo-structure.md` — shape Quick→Details→Checklist→Next step; only `hint`/`callout`
-- [ ] 2.3 Create `site/content/reference/recipe-anatomy.md`, `modules-catalog.md`, `troubleshooting.md` — same shape; no hardcoded SHA/`cosign.pub`
+- [x] 2.2 Create `site/content/concepts/bluebuild.md`, `atomic-ostree.md`, `repo-structure.md` — shape Quick→Details→Checklist→Next step; only `hint`/`callout`
+- [x] 2.3 Create `site/content/reference/recipe-anatomy.md`, `modules-catalog.md`, `troubleshooting.md` — same shape; no hardcoded SHA/`cosign.pub`
 - [ ] 2.4 Create `site/content/guides/add-package.md`, `add-repo-copr.md`, `add-system-file.md`, `add-systemd-service.md`, `kernel-cachyos.md`, `debug-build.md` — same shape; read-only `recipes/*.yml`
 - [ ] 2.5 Verify IA counts `concepts/`=3 `guides/`=6 `reference/`=3 `_index.md` exists; headings in order
 
