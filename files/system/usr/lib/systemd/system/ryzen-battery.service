@@ -4,5 +4,5 @@ After=multi-user.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/ryzen-battery-hook.sh
+ExecStart=/usr/bin/ryzen-battery-hook.sh
 RemainAfterExit=no

@@ -4,5 +4,5 @@ After=multi-user.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/ryzen-perf-hook.sh
+ExecStart=/usr/bin/ryzen-perf-hook.sh
 RemainAfterExit=no

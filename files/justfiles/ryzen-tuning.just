@@ -28,16 +28,16 @@ ryzen-setup:
     echo "-> aplicar perfil segun ADP1 actual (respeta silent-gaming si activo)"
     if [ -f /var/lib/ryzen-silent.active ]; then
       echo "   silent-gaming ACTIVO -> no piso, dejo 9W T70"
-      sudo /usr/local/bin/ryzen-profiles silent-gaming
+      sudo /usr/bin/ryzen-profiles silent-gaming
     elif [ "$(cat /sys/class/power_supply/ADP1/online 2>/dev/null || echo 1)" = "1" ]; then
       echo "   ADP1=1 enchufado -> frio 15W"
-      sudo /usr/local/bin/ryzen-perf-hook.sh
+      sudo /usr/bin/ryzen-perf-hook.sh
     else
       echo "   ADP1=0 bateria -> ultra 6W"
-      sudo /usr/local/bin/ryzen-battery-hook.sh
+      sudo /usr/bin/ryzen-battery-hook.sh
     fi
     echo "-> intentar EC 80% ya (falla si no has reiniciado con ec_sys Y, normal)"
-    sudo /usr/local/bin/msi-battery-80.sh 2>&1 | tail -n 10 || echo "   EC 80% se activara al proximo reboot"
+    sudo /usr/bin/msi-battery-80.sh 2>&1 | tail -n 10 || echo "   EC 80% se activara al proximo reboot"
     echo ""
     echo "OK. `just ryzen-status` para ver. Reinicia con `systemctl reboot` para EC 80%."
     echo "Uso diario: quitas cargador => ultra 6W, pones cargador => frio 15W (auto via udev)."
@@ -83,13 +83,13 @@ ryzen-status:
 
 # Aplica perf/battery a mano (prueba sin esperar a ADP1) — respetan silent flag
 ryzen-perf:
-    sudo /usr/local/bin/ryzen-perf-hook.sh
+    sudo /usr/bin/ryzen-perf-hook.sh
 
 ryzen-battery:
-    sudo /usr/local/bin/ryzen-battery-hook.sh
+    sudo /usr/bin/ryzen-battery-hook.sh
 
 ryzen-stock:
-    sudo /usr/local/bin/ryzen-profiles stock
+    sudo /usr/bin/ryzen-profiles stock
 
 # Silent gaming — lo mas silencioso jugable (0rpm 2D, 1200rpm 3D ligero). 0rpm en 3D AAA es imposible.
 #   on  = activa 9W T70 + 2.9GHz + GPU 1100MHz + POWER_SAVING, bloquea udev (no pisa al enchufar)
@@ -104,14 +104,14 @@ ryzen-silent-gaming mode="on":
       echo "  off -> vuelve a auto ADP1 (6W ultra / 15W frio)"
       exit 1
     fi
-    sudo /usr/local/bin/ryzen-silent-gaming-hook.sh "$MODE"
+    sudo /usr/bin/ryzen-silent-gaming-hook.sh "$MODE"
     echo ""
-    sudo /usr/local/bin/ryzen-profiles status 2>&1 | tail -n 30
+    sudo /usr/bin/ryzen-profiles status 2>&1 | tail -n 30
 
 # Alias corto para desactivar
 ryzen-silent-gaming-off:
-    sudo /usr/local/bin/ryzen-silent-gaming-hook.sh off
-    sudo /usr/local/bin/ryzen-profiles status 2>&1 | tail -n 30
+    sudo /usr/bin/ryzen-silent-gaming-hook.sh off
+    sudo /usr/bin/ryzen-profiles status 2>&1 | tail -n 30
 
 # Fuerza EC 80% o 100% (viaje: just ryzen-charge-limit 100)
 ryzen-charge-limit limit="80":
@@ -125,7 +125,7 @@ ryzen-charge-limit limit="80":
       echo "EC 100% (carga completa) hasta proximo msi-battery-80.service (reboot)"
     else
       echo "-> poniendo 80%"
-      sudo /usr/local/bin/msi-battery-80.sh
+      sudo /usr/bin/msi-battery-80.sh
     fi
     printf "EC[0xEF]=0x"; sudo dd if=/sys/kernel/debug/ec/ec0/io bs=1 skip=239 count=1 2>/dev/null | od -An -t x1 | tr -d "\n"; echo
 
@@ -138,7 +138,7 @@ ryzen-disable:
     sudo systemctl disable --now ryzen-battery.service ryzen-perf.service ryzen-profiles-boot.service msi-battery-80.service 2>&1 | head -n 20 || true
     sudo rm -f /etc/udev/rules.d/99-ryzen-profiles.rules
     sudo udevadm control --reload 2>&1 | head
-    sudo /usr/local/bin/ryzen-profiles stock
+    sudo /usr/bin/ryzen-profiles stock
     echo "-> quita kargs ec_sys si quieres (opcional): just ryzen-kargs-remove"
     echo "Desactivado. PPD vuelve a mandar. Silent flag borrado."
 

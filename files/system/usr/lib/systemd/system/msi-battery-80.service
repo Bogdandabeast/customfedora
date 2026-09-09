@@ -6,7 +6,7 @@ After=ryzen_smu_loader.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/msi-battery-80.sh
+ExecStart=/usr/bin/msi-battery-80.sh
 RemainAfterExit=yes
 
 [Install]

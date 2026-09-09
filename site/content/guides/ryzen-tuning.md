@@ -59,7 +59,7 @@ ADP1=1 con cargador  -> ryzen-perf.service -> ryzen-perf-hook.sh -> FRIO 15W
   (si estabas en silent -> respeta flag, no pisa: sigues en 9W hasta quitar cargador o hacer off)
 Arrancada            -> ryzen-profiles-boot.service (After ryzen_smu_loader) mira ADP1 y silent flag
   - ADP1=1 + flag -> silent, ADP1=0 + flag -> borra flag -> ULTRA, sino FRIO/ULTRA según ADP1
-Silent manual        -> /usr/local/bin/ryzen-silent-gaming-hook.sh on|off
+Silent manual        -> /usr/bin/ryzen-silent-gaming-hook.sh on|off
   - on: solo si ADP1=1, crea /var/lib/ryzen-silent.active (date -Iseconds) y aplica silent-gaming
   - off: borra flag y restaura el que toca por ADP1
   - battery hook siempre gana en ADP1=0 aunque haya flag
@@ -69,10 +69,10 @@ Wifi `power_save` se deja siempre `off` (no se toca) para evitar cortes en `mt79
 
 | Fichero en `files/system` | En imagen `destination: /` |
 |---|---|
-| `usr/local/bin/ryzen-profiles` | `ryzen-profiles perf|battery|silent-gaming|stock|status` — kernel + SMU + GPU |
-| `usr/local/bin/ryzen-battery-hook.sh` | `ULTRA 6W 2.2GHz` + `bluetooth off + docker stop + USB autosuspend + brillo 40%` |
-| `usr/local/bin/ryzen-perf-hook.sh` | `FRIO 15W` + `brillo 80%` |
-| `usr/local/bin/ryzen-silent-gaming-hook.sh` | `on/off` con guarda `ADP1` |
+| `usr/bin/ryzen-profiles` | `ryzen-profiles perf|battery|silent-gaming|stock|status` — kernel + SMU + GPU |
+| `usr/bin/ryzen-battery-hook.sh` | `ULTRA 6W 2.2GHz` + `bluetooth off + docker stop + USB autosuspend + brillo 40%` |
+| `usr/bin/ryzen-perf-hook.sh` | `FRIO 15W` + `brillo 80%` |
+| `usr/bin/ryzen-silent-gaming-hook.sh` | `on/off` con guarda `ADP1` |
 | `usr/local/bin/msi-battery-80.sh` | `EC[0xEF]=0xD0 (80% | BIT7)` + `charge_control_end_threshold` |
 | `usr/libexec/ryzen_smu_loader.sh` | hotfix recompila `ryzen_smu.ko` si cambia `KVER` |
 | `etc/modprobe.d/ec_sys.conf` | `options ec_sys write_support=Y` |

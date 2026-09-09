@@ -6,7 +6,7 @@ if [ -f /var/lib/ryzen-silent.active ]; then
   echo "silent-gaming activo pero ADP1=0 (sin cargador) -> desactivo silent -> ULTRA 6W (no juegas sin cargador)"
   rm -f /var/lib/ryzen-silent.active
 fi
-/usr/local/bin/ryzen-profiles battery
+/usr/bin/ryzen-profiles battery
 # Extra max vida: para dockers (1.5W), BT (0.3W), USB autosuspend
 systemctl stop docker.service docker.socket 2>/dev/null || true
 podman ps -q 2>/dev/null | xargs -r podman stop 2>/dev/null || true
