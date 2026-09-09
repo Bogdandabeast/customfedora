@@ -23,7 +23,7 @@ jobs:
     name: Validate recipes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install BlueBuild CLI
         run: curl -fsSL https://raw.githubusercontent.com/blue-build/cli/main/install.sh | bash
@@ -61,6 +61,8 @@ jobs:
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
+          # PRs from forks/dependabot have no secrets → skip cosign signing
+          build_opts: ${{ secrets.SIGNING_SECRET == '' && '--no-sign' || '' }}
 
           # enabled by default, disable if your image is small and you want faster builds
           maximize_build_space: true
