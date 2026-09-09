@@ -1,0 +1,12 @@
+# scx scheduler config — managed by bluebuild (recipe.niri-cachyos.yml)
+# scx_lavd en modo autopower: sigue a power-profiles-daemon (PPD).
+# Noctalia/PPD -> scx_lavd:
+#   power-saver -> powersave (compactación agresiva, little cores, sin turbo)
+#   balanced    -> balanced  (compactación moderada, big cores físicos)
+#   performance -> performance (sin compactación, todos los cores, freq alta)
+# Ver `scx_lavd --help` para todas las flags.
+SCX_SCHEDULER=scx_lavd
+SCX_FLAGS=--autopower
+
+# ALTERNATIVA: forzar máximo ahorro siempre (ignora PPD)
+#SCX_FLAGS=--powersave

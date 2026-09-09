@@ -67,6 +67,18 @@ modules:
             && test -f "/usr/lib/modules/${KVER}/modules.dep" \
             && echo "Kernel now: ${KVER}"
 
+  # scx schedulers — lavd en modo powersave para máximo ahorro en APU
+  # COPR bieszczaders/kernel-cachyos-addons provee scx-scheds/sc-x-tools
+  # precompilados para Fedora (mismo mantenedor que kernel-cachyos).
+  # https://copr.fedorainfracloud.org/coprs/bieszczaders/kernel-cachyos-addons/
+  - type: dnf
+    repos:
+      copr:
+        - bieszczaders/kernel-cachyos-addons
+    install:
+      packages:
+        - scx-scheds
+
   - type: dnf
     repos:
       files:
@@ -199,6 +211,12 @@ modules:
         # Power profiles (self-enables on install, but ensure it stays enabled;
         # Kinoite ships it masked and that state survives rebases)
         - power-profiles-daemon.service
+        # scx_lavd — scheduler sched_ext en modo powersave (max batería APU).
+        # Lee /etc/default/scx (SCX_SCHEDULER=scx_lavd, SCX_FLAGS=--powersave).
+        # Tiene ConditionPathIsDirectory=/sys/kernel/sched_ext, así que no falla
+        # si el kernel no tiene sched_ext. scx-scheds viene del COPR
+        # bieszczaders/kernel-cachyos-addons.
+        - scx.service
 
   - type: default-flatpaks
     configurations:
