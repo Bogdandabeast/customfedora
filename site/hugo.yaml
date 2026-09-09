@@ -1,0 +1,86 @@
+# Hugo site config — Hextra via Hugo Modules (no Node required)
+# Book fallback: swap module import to github.com/alex-shpak/hugo-book and theme param
+
+baseURL: "https://bogdandabeast.github.io/customfedora/"
+title: "customfedora"
+defaultContentLanguage: en
+enableRobotsTXT: true
+enableGitInfo: true
+
+# Hugo Modules — Hextra primary, Book fallback is one-line swap
+module:
+  hugoVersion:
+    extended: true
+    min: "0.146.0"
+  imports:
+    - path: github.com/imfing/hextra
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+
+outputs:
+  home: [html]
+  section: [html]
+  page: [html]
+
+menu:
+  main:
+    - name: Docs
+      pageRef: /docs
+      weight: 1
+    - name: Concepts
+      pageRef: /concepts
+      weight: 2
+    - name: Guides
+      pageRef: /guides
+      weight: 3
+    - name: Reference
+      pageRef: /reference
+      weight: 4
+    - name: Search
+      weight: 5
+      params:
+        type: search
+    - name: GitHub
+      weight: 6
+      url: https://github.com/bogdandabeast/customfedora
+      params:
+        icon: github
+
+params:
+  description: "Custom Fedora Atomic (Niri + Noctalia) — BlueBuild recipes, modules, and live image pipeline."
+
+  navbar:
+    displayTitle: true
+    displayLogo: false
+    width: wide
+
+  footer:
+    displayCopyright: true
+    displayPoweredBy: true
+    width: normal
+
+  theme:
+    default: system
+    displayToggle: true
+
+  # Offline search (FlexSearch) — no Algolia
+  search:
+    enable: true
+    type: flexsearch
+    flexsearch:
+      index: content
+      tokenize: forward
+
+  editURL:
+    enable: true
+    base: "https://github.com/bogdandabeast/customfedora/edit/main/site/content"
+
+  page:
+    width: normal
+
+  # Hextra dark mode is built-in via theme toggle

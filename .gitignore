@@ -3,6 +3,11 @@ cosign.private
 /Containerfile
 /.bluebuild-scripts_*
 
+# Hugo site build outputs (never commit)
+site/public/
+site/resources/
+site/.hugo_build.lock
+
 # Node/bun tooling (husky hooks)
 node_modules/
 .husky/_/

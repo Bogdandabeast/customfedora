@@ -1,0 +1,9 @@
+/* customfedora — minimal Hextra overrides (Hugo Pipes, no Node) */
+:root {
+  --hextra-max-content-width: 72rem;
+}
+
+/* Subtle landing tweaks — keep theme-agnostic */
+.hextra-landing-cta {
+  margin-top: 1.25rem;
+}
