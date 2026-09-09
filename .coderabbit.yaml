@@ -82,24 +82,24 @@ reviews:
       instructions: |
         Spec-driven: RFC 2119 MUST/SHOULD, Given/When/Then. Valida que proposal/design/tasks/verify estén coherentes antes de archive.
 
-# Herramientas integradas (lints que CodeRabbit ejecuta automáticamente)
-tools:
-  shellcheck:
-    enabled: true
-  yamllint:
-    enabled: true
-  actionlint:
-    enabled: true
-  hadolint:
-    enabled: true
-  markdownlint:
-    enabled: false  # docs/ legacy dump rompería
-  checkov:
-    enabled: false
-  gitleaks:
-    enabled: true
-  trufflehog:
-    enabled: false
+  # Herramientas integradas (lints que CodeRabbit ejecuta automáticamente)
+  tools:
+    shellcheck:
+      enabled: true
+    yamllint:
+      enabled: true
+    actionlint:
+      enabled: true
+    hadolint:
+      enabled: true
+    markdownlint:
+      enabled: false  # docs/ legacy dump rompería
+    checkov:
+      enabled: false
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: false
 
 knowledge_base:
   learnings:
