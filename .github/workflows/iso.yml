@@ -21,7 +21,7 @@ jobs:
           - recipe.niri.yml
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       # The bundled ISO (bluebuild generate-iso) embeds the whole ~6 GB image,
       # far over GitHub Releases' 2 GiB per-asset limit. Instead we build a
