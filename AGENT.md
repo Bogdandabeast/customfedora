@@ -41,11 +41,11 @@ Si ves `files/system/usr/local` en un `git diff`, **recházalo** y mueve a `usr/
 
 ## Ryzen tuning (Modern 15 B7M B9M, 7730U)
 
-- Perfiles: `ULTRA 6W 2.2GHz T80` (`ADP1=0` batería), `FRIO 15W 4.5GHz T85` (`ADP1=1` enchufado día a día), `SILENT 9W 2.9GHz GPU 1100MHz T70` (solo `ADP1=1` juego noche). Ver `site/content/guides/ryzen-tuning.md`.
-- `silent-gaming` solo con cargador (`ADP1=1`); `ryzen-battery-hook` en `ADP1=0` borra flag y pasa a `ULTRA` (no juegas sin cargador).
+- Perfil único: `ULTRA 6W 2.2GHz T80` solo con batería (`ADP1=0`, udev). Al enchufar (`ADP1=1`) `ryzen-ac-hook` restaura stock MSI (25W, sin caps) y PPD manda — sin perfiles `perf`/`silent-gaming`. Ver `site/content/guides/ryzen-tuning.md`.
 - `EC 80%` en `0xEF = 0xD0` via `ec_sys.write_support=Y` (kargs + `/etc/modprobe.d/ec_sys.conf` + `msi-battery-80.service`). Persistente, una vez.
 - `ryzen_smu.ko` va **baked** en `/usr/lib/modules/<kver>/extra` vía `build-ryzen-smu.sh` (necesita `kernel-cachyos-devel-matched` en imagen). `ryzen_smu_loader` es fallback hotfix recompila.
-- Tras suspend/hibernate (`setup-hibernate` `suspend-then-hibernate`), `ryzen-resume.service` re-aplica `ADP1` + `EC 80%` (SMU es volátil).
+- Tras suspend (`setup-suspend` suspend-to-RAM al cerrar tapa), `ryzen-resume.service` re-aplica ADP1 (ULTRA/stock) + `EC 80%` (SMU es volátil).
+- Drenaje suspend minimizado por hook `system-sleep/ryzen-power-save` (BT off, USB autosuspend, WoWLAN off, kbd off; BT vuelve solo en AC). Opt-ins: `ujust suspend-deep on` (S3, probar despertar), `ujust suspend-usbwake on`; medir con `ujust suspend-drain`.
 
 ## Build debugging
 

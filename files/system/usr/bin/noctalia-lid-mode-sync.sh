@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Sincroniza el widget custom_button lid-mode de Noctalia con el modo real de tapa.
 # Lee /etc/systemd/logind.conf.d/lid.conf y actualiza el config de Noctalia.
-# Se llama desde ujust setup-lid-lock / setup-hibernate y al hacer login.
+# Se llama desde ujust setup-lid-lock / setup-suspend y al hacer login.
 set -euo pipefail
 
 CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/noctalia"
@@ -9,8 +9,8 @@ DEST="$CONF_DIR/lid-mode.toml"
 
 lid_mode() {
     local f="/etc/systemd/logind.conf.d/lid.conf"
-    if [[ -r "$f" && $(grep -c "suspend-then-hibernate" "$f" 2>/dev/null) -gt 0 ]]; then
-        echo "hibernate"
+    if [[ -r "$f" && $(grep -c "^HandleLidSwitch=suspend$" "$f" 2>/dev/null) -gt 0 ]]; then
+        echo "suspend"
     elif systemctl --user is-active --quiet lid-lock.service 2>/dev/null; then
         echo "lock"
     elif [[ -r "$f" && $(grep -c "HandleLidSwitch=ignore" "$f" 2>/dev/null) -gt 0 ]]; then
@@ -22,8 +22,8 @@ lid_mode() {
 
 MODE="$(lid_mode)"
 case "$MODE" in
-    hibernate) GLYPH="moon-stars"; LABEL="hibernate on"; TIP="Tapa: suspende → hiberna (ahorro)" ;;
-    lock)      GLYPH="lock";       LABEL="hibernate off"; TIP="Tapa: solo bloquea, tareas siguen" ;;
+    suspend)   GLYPH="moon-stars"; LABEL="suspend on"; TIP="Tapa: suspende (suspend-to-RAM)" ;;
+    lock)      GLYPH="lock";       LABEL="suspend off"; TIP="Tapa: solo bloquea, tareas siguen" ;;
     *)         GLYPH="help";       LABEL="lid ?";         TIP="Modo tapa desconocido" ;;
 esac
 

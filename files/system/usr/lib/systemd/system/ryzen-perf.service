@@ -1,8 +1,0 @@
-[Unit]
-Description=Ryzen 7730U performance 30W 4.5GHz (con cargador)
-After=multi-user.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/ryzen-perf-hook.sh
-RemainAfterExit=no

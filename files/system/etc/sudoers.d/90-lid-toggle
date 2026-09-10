@@ -1,4 +1,12 @@
 # Toggle passwordless para el widget Noctalia lid-mode.
-# Permite `ujust setup-lid-lock` / `setup-hibernate` sin password cuando se hace click en el navbar.
-# Solo los binarios que usan esos justfiles; no es NOPASSWD ALL.
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/rpm-ostree, /usr/bin/tee, /usr/bin/sed, /usr/bin/mkdir, /usr/sbin/swapon, /usr/bin/blkid, /usr/sbin/filefrag, /usr/bin/btrfs, /usr/bin/kill, /usr/bin/systemctl, /usr/bin/noctalia-lid-mode-toggle.sh, /usr/bin/noctalia-lid-mode-sync.sh, /usr/bin/btrfs
+# Permite `ujust setup-lid-lock` / `setup-suspend` sin password cuando se hace click en el navbar.
+# Solo las invocaciones exactas que usan esos justfiles; no es NOPASSWD ALL.
+# (setup-suspend-cleanup pide password: se ejecuta a mano, no desde el widget)
+Cmnd_Alias LIDMODE = /usr/bin/tee /etc/systemd/logind.conf.d/lid.conf, \
+                     /usr/bin/mkdir -p /etc/systemd/logind.conf.d, \
+                     /usr/bin/kill -HUP [0-9]*, \
+                     /usr/bin/systemctl kill -s HUP systemd-logind, \
+                     /usr/bin/systemctl disable --now lid-lock.service, \
+                     /usr/bin/noctalia-lid-mode-toggle.sh, \
+                     /usr/bin/noctalia-lid-mode-sync.sh
+%wheel ALL=(ALL) NOPASSWD: LIDMODE

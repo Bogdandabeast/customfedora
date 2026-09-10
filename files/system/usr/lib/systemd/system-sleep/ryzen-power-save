@@ -1,0 +1,97 @@
+#!/bin/bash
+# Ryzen 7730U (Modern 15 B7M) — minimiza el drenaje en suspend-to-RAM.
+# Llamado por systemd-sleep en pre/post (sleep/suspend). Idempotente y a prueba de fallos:
+# si algo falla, el suspend sigue (|| true / 2>/dev/null).
+#
+# Ahorros pre-sleep (~0.8-1.5W menos de drenaje):
+#   - BT off (restaura al despertar solo si estaba on y hay cargador)
+#   - USB autosuspend forzado en todos los dispositivos
+#   - WoWLAN off en wifi (mt7921)
+#   - backlight teclado off (guarda valor previo)
+#
+# Opt-ins (flags en /var/lib/ryzen-suspend/, los escribe ujust setup-suspend-*):
+#   suspend-deep      → mem_sleep=deep si la BIOS lo expone (s2idle→deep: -0.3-0.8W; testear despertar)
+#   suspend-usbwake   → desactiva despertar por USB (XHC) (impide despertar con ratón/teclado USB)
+
+STATE_DIR="/var/lib/ryzen-suspend"
+KBD_BL="/sys/class/leds/platform::kbd_backlight/brightness"
+KBD_SAVE="$STATE_DIR/kbd-backlight"
+BT_WAS_ON="$STATE_DIR/bt-was-on"
+
+pre() {
+    mkdir -p "$STATE_DIR" 2>/dev/null || true
+
+    # --- mem_sleep deep (opt-in, solo si 'deep' existe) ---
+    if [[ -f "$STATE_DIR/suspend-deep" && -r /sys/power/mem_sleep ]] && grep -qw deep /sys/power/mem_sleep; then
+        echo deep > /sys/power/mem_sleep 2>/dev/null || true
+    fi
+
+    # --- wake por USB (opt-in) ---
+    if [[ -f "$STATE_DIR/suspend-usbwake" ]]; then
+        for w in /sys/bus/usb/devices/*/power/wakeup /proc/acpi/wakeup; do
+            [[ -d "$w" || -f "$w" ]] || continue
+            if [[ -w "$w" ]]; then
+                if [[ "$w" == /proc/acpi/wakeup ]]; then
+                    while read -r line; do
+                        dev="${line%%\ *}"
+                        [[ "$line" == *"*enabled"* ]] && echo "$dev" > "$w" 2>/dev/null || true
+                    done < "$w"
+                    break
+                else
+                    echo disabled > "$w" 2>/dev/null || true
+                fi
+            fi
+        done
+    fi
+
+    # --- WoWLAN off ---
+    for phy in /sys/class/net/wl*; do
+        [[ -d "$phy" ]] || continue
+        dev="$(basename "$phy")"
+        iw dev "$dev" wowlan disable 2>/dev/null || true
+    done
+
+    # --- USB autosuspend forzado (wake sources intactos salvo opt-in) ---
+    for d in /sys/bus/usb/devices/*/power/control; do
+        echo auto > "$d" 2>/dev/null || true
+    done
+
+    # --- backlight teclado ---
+    if [[ -w "$KBD_BL" ]]; then
+        cat "$KBD_BL" > "$KBD_SAVE" 2>/dev/null || true
+        echo 0 > "$KBD_BL" 2>/dev/null || true
+    fi
+
+    # --- Bluetooth off (guarda si estaba on para restaurar en AC) ---
+    if command -v bluetoothctl >/dev/null 2>&1; then
+        if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then
+            echo 1 > "$BT_WAS_ON" 2>/dev/null || true
+            bluetoothctl power off >/dev/null 2>&1 || true
+        else
+            echo 0 > "$BT_WAS_ON" 2>/dev/null || true
+        fi
+    fi
+
+    # --- sincronizar discos (reduce trabajo al despertar) ---
+    sync
+}
+
+post() {
+    # --- restaurar backlight teclado ---
+    if [[ -s "$KBD_SAVE" && -w "$KBD_BL" ]]; then
+        cat "$KBD_SAVE" > "$KBD_BL" 2>/dev/null || true
+    fi
+
+    # --- BT on solo si estaba on y hay cargador (en batería lo dejamos off: ahorro) ---
+    if command -v bluetoothctl >/dev/null 2>&1; then
+        if [[ "$(cat "$BT_WAS_ON" 2>/dev/null || echo 0)" = "1" ]] && [[ "$(cat /sys/class/power_supply/ADP1/online 2>/dev/null || echo 0)" = "1" ]]; then
+            bluetoothctl power on >/dev/null 2>&1 || true
+        fi
+    fi
+}
+
+case "$1" in
+    pre)  pre ;;
+    post) post ;;
+esac
+exit 0

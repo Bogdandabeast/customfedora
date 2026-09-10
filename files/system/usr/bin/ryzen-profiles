@@ -1,87 +1,67 @@
 #!/usr/bin/env python3
+# Ryzen 7730U — perfil único de AHORRO DE BATERÍA.
+# Solo importa cuando ADP1=0 (sin cargador): 6W, 2.2GHz, GPU powersaving.
+# Al enchufar el cargador no hay perfil: se restaura stock MSI (25W, sin caps)
+# para que PPD/ Governor manden. Cero lógica silenciosa/perf/stock-gaming.
 import struct, sys, os, subprocess, glob
 
-S="/sys/kernel/ryzen_smu_drv/smu_args"
-R="/sys/kernel/ryzen_smu_drv/rsmu_cmd"
+S = "/sys/kernel/ryzen_smu_drv/smu_args"
+R = "/sys/kernel/ryzen_smu_drv/rsmu_cmd"
+
+STOCK = dict(stapm=25000, slow=25000, fast=30000, tctl=100)
+ULTRA = dict(stapm=6000, slow=8000, fast=12000, tctl=80)
+ULTRA_MAX_FREQ = 2200000
+
 
 def smu_send(cmd, val):
-    open(S,"wb").write(struct.pack("<IIIIII", val & 0xFFFFFFFF,0,0,0,0,0))
-    open(R,"wb").write(struct.pack("<I", cmd & 0xFFFFFFFF))
-    return struct.unpack("<I", open(R,"rb").read(4))[0]
+    open(S, "wb").write(struct.pack("<IIIIII", val & 0xFFFFFFFF, 0, 0, 0, 0, 0))
+    open(R, "wb").write(struct.pack("<I", cmd & 0xFFFFFFFF))
+    return struct.unpack("<I", open(R, "rb").read(4))[0]
+
 
 def set_smu(stapm, slow, fast, tctl):
-    for cmd,val,name in [(0x31,stapm,"STAPM"), (0x33,slow,"SLOW"), (0x32,fast,"FAST"), (0x37,tctl,"Tctl")]:
+    for cmd, val, name in [(0x31, stapm, "STAPM"), (0x33, slow, "SLOW"), (0x32, fast, "FAST"), (0x37, tctl, "Tctl")]:
         try:
-            st=smu_send(cmd,val)
-            print(f" SMU 0x{cmd:02X} {name:6}={val:5} -> 0x{st:02X} {'OK' if st==0x01 else 'FAIL'}")
+            st = smu_send(cmd, val)
+            print(f" SMU 0x{cmd:02X} {name:6}={val:5} -> 0x{st:02X} {'OK' if st == 0x01 else 'FAIL'}")
         except Exception as e:
             print(f" SMU {name}: {e}")
             return False
     return True
 
-def get_true_max():
-    for p in ["/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_max_freq",
-              "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq",
-              "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq"]:
-        try:
-            v=int(open(p).read().strip())
-            if v>2500000:
-                return v
-        except: pass
-    return 4547946
 
-def set_kernel(pref, gov, boost, max_freq=None):
-    true_max = get_true_max()
-    if max_freq is None:
-        max_freq = true_max
-    ok=True
+def set_kernel(pref, gov, boost, max_freq):
     for i in range(16):
         try:
-            open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_governor","w").write(gov)
+            open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_governor", "w").write(gov)
         except Exception as e:
-            if i==0: print(f" gov {gov}: {e}")
-            ok=False
+            if i == 0:
+                print(f" gov {gov}: {e}")
         try:
-            open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/energy_performance_preference","w").write(pref)
+            open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/energy_performance_preference", "w").write(pref)
         except Exception as e:
-            if i==0: print(f" EPP {pref}: {e}")
-            try:
-                alt = "power" if pref=="balance_power" else pref
-                open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/energy_performance_preference","w").write(alt)
-            except: pass
-        try:
-            open(f"/sys/devices/system/cpu/cpufreq/policy{i}/energy_performance_preference","w").write(pref)
-        except: pass
+            if i == 0:
+                print(f" EPP {pref}: {e}")
     for i in range(16):
         for path in [f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_max_freq",
                      f"/sys/devices/system/cpu/cpufreq/policy{i}/scaling_max_freq"]:
             try:
-                open(path,"w").write(str(max_freq))
-            except:
+                open(path, "w").write(str(max_freq))
+            except Exception:
                 pass
     if boost is not None:
         try:
-            open("/sys/devices/system/cpu/cpufreq/boost","w").write(str(boost))
-        except: pass
-        for i in range(16):
-            try:
-                open(f"/sys/devices/system/cpu/cpufreq/policy{i}/boost","w").write(str(boost))
-            except OSError as e:
-                if e.errno not in (22,16,13):
-                    if i==0: print(f" boost policy{i}: {e}")
-            except: pass
+            open("/sys/devices/system/cpu/cpufreq/boost", "w").write(str(boost))
+        except Exception:
+            pass
     try:
         cur_max = open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq").read().strip()
         cur_epp = open("/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference").read().strip()
         cur_gov = open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor").read().strip()
-        try:
-            cur_boost = open("/sys/devices/system/cpu/cpufreq/policy0/boost").read().strip()
-        except:
-            try: cur_boost = open("/sys/devices/system/cpu/cpufreq/boost").read().strip()
-            except: cur_boost="?"
-        print(f" Kernel: EPP={cur_epp} gov={cur_gov} boost={cur_boost} maxfreq={cur_max} (pedido {max_freq})")
-    except: pass
-    return ok
+        print(f" Kernel: EPP={cur_epp} gov={cur_gov} maxfreq={cur_max} (pedido {max_freq})")
+    except Exception:
+        pass
+
 
 def find_drm_base():
     for p in sorted(glob.glob("/sys/class/drm/card*/device/pp_power_profile_mode")):
@@ -90,183 +70,109 @@ def find_drm_base():
         return os.path.dirname(p)
     return None
 
-def set_gpu(mode):
+
+def gpu_restore_stock():
     base = find_drm_base()
     if not base:
         print(" GPU: no amdgpu drm encontrado (skip)")
-        return True
-    print(f" GPU: drm {base}")
+        return
     try:
-        if mode == "silent":
-            # cap 1100MHz manual + POWER_SAVING
-            try:
-                open(os.path.join(base,"power_dpm_force_performance_level"),"w").write("manual")
-                print(" GPU: power_dpm_force_performance_level=manual OK")
-            except Exception as e:
-                print(f" GPU manual: {e}")
-            try:
-                open(os.path.join(base,"pp_od_clk_voltage"),"w").write("s 1 1100")
-                open(os.path.join(base,"pp_od_clk_voltage"),"w").write("c")
-                print(" GPU: pp_od_clk_voltage s 1 1100 + c OK (techo 1100MHz)")
-            except Exception as e:
-                print(f" GPU cap 1100: {e} (puede requerir manual)")
-            try:
-                open(os.path.join(base,"pp_power_profile_mode"),"w").write("2")
-                print(" GPU: pp_power_profile_mode=2 POWER_SAVING OK")
-            except Exception as e:
-                print(f" GPU profile 2: {e}")
-            try:
-                sclk = open(os.path.join(base,"pp_dpm_sclk")).read().strip().splitlines()[:4]
-                print(" GPU sclk: " + " | ".join(sclk))
-            except: pass
-        elif mode == "perf":
-            try: open(os.path.join(base,"pp_od_clk_voltage"),"w").write("r")
-            except: pass
-            try: open(os.path.join(base,"pp_od_clk_voltage"),"w").write("c")
-            except: pass
-            try:
-                open(os.path.join(base,"power_dpm_force_performance_level"),"w").write("auto")
-                print(" GPU: power_dpm_force_performance_level=auto OK")
-            except Exception as e:
-                print(f" GPU auto: {e}")
-            try:
-                open(os.path.join(base,"pp_power_profile_mode"),"w").write("0")
-                print(" GPU: pp_power_profile_mode=0 BOOTUP_DEFAULT OK")
-            except Exception as e:
-                print(f" GPU profile 0: {e}")
-            try:
-                sclk = open(os.path.join(base,"pp_dpm_sclk")).read().strip().splitlines()[:4]
-                print(" GPU sclk: " + " | ".join(sclk))
-            except: pass
-        elif mode == "battery":
-            try:
-                open(os.path.join(base,"power_dpm_force_performance_level"),"w").write("auto")
-                print(" GPU: power_dpm_force_performance_level=auto OK")
-            except Exception as e:
-                print(f" GPU auto: {e}")
-            try:
-                open(os.path.join(base,"pp_power_profile_mode"),"w").write("2")
-                print(" GPU: pp_power_profile_mode=2 POWER_SAVING OK")
-            except Exception as e:
-                print(f" GPU profile 2: {e}")
-        elif mode == "stock":
-            try: open(os.path.join(base,"pp_od_clk_voltage"),"w").write("r")
-            except: pass
-            try: open(os.path.join(base,"pp_od_clk_voltage"),"w").write("c")
-            except: pass
-            try:
-                open(os.path.join(base,"power_dpm_force_performance_level"),"w").write("auto")
-            except: pass
-            try:
-                open(os.path.join(base,"pp_power_profile_mode"),"w").write("0")
-            except: pass
-            print(" GPU: stock auto 2000MHz OK")
+        open(os.path.join(base, "pp_od_clk_voltage"), "w").write("r")
+        open(os.path.join(base, "pp_od_clk_voltage"), "w").write("c")
+        open(os.path.join(base, "power_dpm_force_performance_level"), "w").write("auto")
+        open(os.path.join(base, "pp_power_profile_mode"), "w").write("0")
+        print(" GPU: stock restaurado (auto + BOOTUP_DEFAULT)")
     except Exception as e:
-        print(f" GPU {mode}: {e}")
-    return True
+        print(f" GPU stock: {e}")
 
-def set_battery_tweaks(enable):
-    if enable:
-        print(" Tweaks bateria: wifi PS sin tocar (off estable)")
-    else:
-        print(" Tweaks perf: wifi PS sin tocar (off estable)")
 
-if len(sys.argv)<2:
-    print("Uso: sudo ryzen-profiles perf | battery | silent-gaming | stock | status")
-    sys.exit(0)
-
-mode=sys.argv[1]
-if mode=="perf":
-    print("=== MODO EQUILIBRADO FRIO (con cargador - baja temp) ===")
-    print(" Objetivo: 15W, fresco/silencioso, 95% perf CPU, GPU 2000MHz. No compila.")
-    set_smu(15000, 15000, 18000, 85)
-    set_kernel("balance_performance","powersave",1, None)
-    set_gpu("perf")
-    set_battery_tweaks(False)
+def gpu_battery():
+    base = find_drm_base()
+    if not base:
+        print(" GPU: no amdgpu drm encontrado (skip)")
+        return
     try:
-        open("/sys/class/backlight/amdgpu_bl1/brightness","w").write("52428")
-        print(" Backlight 80% (52428)")
-    except: pass
-    print("\n PPT 15/15/18W T85 = frio. SMU cap + EPP balance. GPU libre.")
-elif mode=="battery":
-    print("=== MODO AHORRO BATERIA ULTRA (sin cargador - max vida) ===")
-    print(" Objetivo: 6W, +120min vs stock, ultra silencioso, 2.2GHz cap, GPU powersaving.")
-    set_smu(6000, 8000, 12000, 80)
-    set_kernel("power","powersave",1, 2200000)
-    set_gpu("battery")
-    set_battery_tweaks(True)
-    try:
-        open("/sys/class/backlight/amdgpu_bl1/brightness","w").write("39321")
-        print(" Backlight 60% -> hook 40% (26214)")
+        open(os.path.join(base, "power_dpm_force_performance_level"), "w").write("auto")
+        open(os.path.join(base, "pp_power_profile_mode"), "w").write("2")
+        print(" GPU: POWER_SAVING (perfil 2)")
     except Exception as e:
-        print(f" Backlight: {e}")
-    print("\n PPT 6/8/12W + 2.2GHz cap + EPP power + T80 = max vida. Wifi sin tocar. GPU auto powersaving.")
-elif mode=="silent-gaming":
-    print("=== MODO SILENT GAMING (frio + silencioso, NO fanless total) ===")
-    print(" Objetivo: 9W sostenido + 2.9GHz cap + GPU 1100MHz + T70 = ventilador 0-1200rpm ~inaudible")
-    print(" Nota: 0rpm jugando 3D es imposible (18W necesita aire), esto es lo mas silencioso sin throttling a 5fps.")
-    set_smu(9000, 10000, 12000, 70)
-    # EPP balance_power + powersave + boost ON pero cap a 2.9GHz = eficiente
-    set_kernel("balance_power","powersave",1, 2900000)
-    set_gpu("silent")
-    set_battery_tweaks(True)
-    try:
-        open("/sys/class/backlight/amdgpu_bl1/brightness","w").write("45874")
-        print(" Backlight 70% (45874)")
-    except Exception as e:
-        print(f" Backlight: {e}")
-    print("\n PPT 9/10/12W T70 + 2.9GHz + GPU 1100MHz POWER_SAVING = ~70-80% FPS stock con 35% ruido.")
-    print(" Para 0rpm real solo indie 2D (Hollow Knight 45fps). 3D AAA -> 1200rpm inevitable.")
-elif mode=="stock":
-    print("=== STOCK MSI (revierte todo) ===")
-    set_smu(25000, 25000, 30000, 100)
-    set_kernel("balance_performance","powersave",1, None)
-    set_gpu("stock")
-    set_battery_tweaks(False)
-    try:
-        open("/sys/class/backlight/amdgpu_bl1/brightness","w").write("65535")
-        print(" Backlight 100%")
-    except: pass
-    print(" Stock restaurado. Borra flag silent si existe.")
-    try:
-        os.remove("/var/lib/ryzen-silent.active")
-        print(" Flag silent-gaming borrado (/var/lib/ryzen-silent.active)")
-    except: pass
-elif mode=="status":
+        print(f" GPU battery: {e}")
+
+
+def battery():
+    print("=== AHORRO BATERIA ULTRA (sin cargador) ===")
+    print(" Objetivo: 6W, ~7.5h vs 5.5h stock, ultra silencioso, 2.2GHz cap.")
+    set_smu(**ULTRA)
+    set_kernel("power", "powersave", 1, ULTRA_MAX_FREQ)
+    gpu_battery()
+    print(" PPT 6/8/12W + 2.2GHz cap + EPP power + T80 = max vida.")
+    print(" Extras: docker/BT off, USB autosuspend, brillo 40% (ver ryzen-battery-hook.sh).")
+
+
+def restore():
+    print("=== RESTAURAR STOCK MSI (cargador enchufado) ===")
+    set_smu(**STOCK)
+    # Sin caps de frecuencia: deja el techo al máximo detectado (stock)
+    true_max = 4547946
+    for p in ["/sys/devices/system/cpu/cpu0/cpufreq/amd_pstate_max_freq",
+              "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq",
+              "/sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq"]:
+        try:
+            v = int(open(p).read().strip())
+            if v > 2500000:
+                true_max = v
+                break
+        except Exception:
+            pass
+    set_kernel("balance_performance", "powersave", 1, true_max)
+    gpu_restore_stock()
+    print(" Stock restaurado: sin caps propios. PPD/GPU mandan como en MSI de fábrica.")
+
+
+def status():
     print("=== ESTADO ACTUAL ===")
+    try:
+        adp1 = open("/sys/class/power_supply/ADP1/online").read().strip()
+    except Exception:
+        adp1 = "?"
+    print(f" ADP1: {adp1} ({'enchufado → stock' if adp1 == '1' else 'batería → ULTRA 6W'})")
     for i in range(2):
         try:
-            gov=open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_governor").read().strip()
-            epp=open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/energy_performance_preference").read().strip()
-            mx=open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_max_freq").read().strip()
-            try: bst=open(f"/sys/devices/system/cpu/cpufreq/policy{i}/boost").read().strip()
-            except: bst=open("/sys/devices/system/cpu/cpufreq/boost").read().strip()
-            print(f" cpu{i}: gov={gov} EPP={epp} max={mx} boost={bst}")
-        except Exception as e: print(e)
-    # GPU status
-    base=find_drm_base()
+            gov = open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_governor").read().strip()
+            epp = open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/energy_performance_preference").read().strip()
+            mx = open(f"/sys/devices/system/cpu/cpu{i}/cpufreq/scaling_max_freq").read().strip()
+            print(f" cpu{i}: gov={gov} EPP={epp} max={mx}")
+        except Exception as e:
+            print(f" cpu{i}: {e}")
+    base = find_drm_base()
     if base:
         try:
-            lvl=open(os.path.join(base,"power_dpm_force_performance_level")).read().strip()
-            print(f" GPU level: {lvl} @ {base}")
-        except: pass
-        try:
-            sclk=open(os.path.join(base,"pp_dpm_sclk")).read().strip().splitlines()
-            for l in sclk[:5]: print(f"  {l}")
-        except: pass
-        try:
-            mode_gpu=open(os.path.join(base,"pp_power_profile_mode")).read().strip().splitlines()
-            for l in mode_gpu[:15]: print(f"  {l}")
-        except: pass
-    # silent flag
+            lvl = open(os.path.join(base, "power_dpm_force_performance_level")).read().strip()
+            prof = open(os.path.join(base, "pp_power_profile_mode")).read().strip().splitlines()
+            cur = next((l for l in prof if l.strip().endswith("*")), prof[0] if prof else "?")
+            print(f" GPU level: {lvl} | {cur.strip()} @ {base}")
+        except Exception as e:
+            print(f" GPU: {e}")
     try:
-        if os.path.exists("/var/lib/ryzen-silent.active"):
-            print(f" silent-gaming: ACTIVO ({open('/var/lib/ryzen-silent.active').read().strip()})")
-        else:
-            print(" silent-gaming: inactivo")
-    except: pass
-    try:
-        import subprocess as sp; print(sp.run(["sensors"], capture_output=True, text=True, timeout=2).stdout[:700])
-    except: pass
-else:
-    print("Uso: sudo ryzen-profiles perf | battery | silent-gaming | stock | status")
+        out = subprocess.run(["sensors"], capture_output=True, text=True, timeout=2).stdout
+        for l in out.splitlines():
+            if "Tctl" in l or "PPT" in l:
+                print(f" {l.strip()}")
+    except Exception:
+        pass
+
+
+if __name__ == "__main__":
+    mode = sys.argv[1] if len(sys.argv) > 1 else ""
+    if mode == "battery":
+        battery()
+    elif mode == "restore":
+        restore()
+    elif mode == "status":
+        status()
+    else:
+        print("Uso: sudo ryzen-profiles battery | restore | status")
+        print("  battery — AHORRO BATERÍA ULTRA 6W (se aplica solo sin cargador)")
+        print("  restore — vuelve a stock MSI (se aplica al enchufar cargador)")
+        print("  status  — ADP1, CPU, GPU, temps")
+        sys.exit(0 if mode == "" else 1)

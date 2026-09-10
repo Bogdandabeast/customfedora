@@ -1,12 +1,12 @@
 [Unit]
-Description=Ryzen 7730U auto perfil al arrancar (AC=enchufado: silent si flag, sino auto)
+Description=Ryzen 7730U aplica perfil al arrancar segun ADP1 (bateria ULTRA / enchufado stock)
 After=multi-user.target
 Requires=ryzen_smu_loader.service
 After=ryzen_smu_loader.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c ' /usr/libexec/ryzen_smu_loader.sh; ADP1=$(cat /sys/class/power_supply/ADP1/online 2>/dev/null); if [ "$ADP1" = "1" ] && [ -f /var/lib/ryzen-silent.active ]; then /usr/bin/ryzen-profiles silent-gaming; elif [ -f /var/lib/ryzen-silent.active ] && [ "$ADP1" != "1" ]; then rm -f /var/lib/ryzen-silent.active; /usr/bin/ryzen-battery-hook.sh; elif [ "$ADP1" = "1" ]; then /usr/bin/ryzen-perf-hook.sh; else /usr/bin/ryzen-battery-hook.sh; fi'
+ExecStart=/bin/bash -c ' /usr/libexec/ryzen_smu_loader.sh; ADP1=$(cat /sys/class/power_supply/ADP1/online 2>/dev/null); if [ "$ADP1" = "1" ]; then /usr/bin/ryzen-ac-hook.sh; else /usr/bin/ryzen-battery-hook.sh; fi'
 RemainAfterExit=no
 
 [Install]

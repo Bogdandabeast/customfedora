@@ -139,7 +139,7 @@ modules:
   - type: systemd
     user:
       enabled:
-        # Keeps the Noctalia navbar widget (hibernate on/off) in sync with lid.conf
+        # Keeps the Noctalia navbar widget (suspend on/off) in sync with lid.conf
         - noctalia-lid-mode-sync.service
     system:
       enabled:

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Toggle lid-mode hibernate on/off sin password (usa sudo NOPASSWD de 90-lid-toggle).
+# Toggle lid-mode suspend on/off sin password (usa sudo NOPASSWD de 90-lid-toggle).
 # Se llama desde el widget Noctalia lid-mode (left click).
 set -euo pipefail
 
@@ -10,8 +10,8 @@ notify() {
 
 lid_mode() {
     local f="/etc/systemd/logind.conf.d/lid.conf"
-    if [[ -r "$f" && $(grep -c "suspend-then-hibernate" "$f" 2>/dev/null) -gt 0 ]]; then
-        echo "hibernate"
+    if [[ -r "$f" && $(grep -c "^HandleLidSwitch=suspend$" "$f" 2>/dev/null) -gt 0 ]]; then
+        echo "suspend"
     elif systemctl --user is-active --quiet lid-lock.service 2>/dev/null; then
         echo "lock"
     elif [[ -r "$f" && $(grep -c "HandleLidSwitch=ignore" "$f" 2>/dev/null) -gt 0 ]]; then
@@ -23,28 +23,21 @@ lid_mode() {
 
 MODE="$(lid_mode)"
 case "$MODE" in
-    hibernate)
-        notify "Cambiando a hibernate off (solo bloquea)..."
+    suspend)
+        notify "Cambiando a suspend off (solo bloquea)..."
         if ujust setup-lid-lock 2>&1 | systemd-cat -t lid-toggle 2>/dev/null; then
-            notify "Modo tapa: hibernate off — tapa solo bloquea"
+            notify "Modo tapa: suspend off — tapa solo bloquea"
         else
-            notify "Error al cambiar a hibernate off — revisa journalctl -t lid-toggle"
+            notify "Error al cambiar a suspend off — revisa journalctl -t lid-toggle"
             exit 1
         fi
         ;;
     lock|unknown|*)
-        notify "Cambiando a hibernate on (suspende → hiberna)..."
-        if ujust setup-hibernate 2>&1 | systemd-cat -t lid-toggle 2>/dev/null; then
-            # setup-hibernate avisa si necesita reinicio por resume=
-            if ! tr ' ' '\n' < /proc/cmdline 2>/dev/null | grep -q "^resume="; then
-                if rpm-ostree kargs 2>/dev/null | tr ' ' '\n' | grep -q "^resume="; then
-                    notify "Modo tapa: hibernate on — reinicia para activar resume"
-                fi
-            else
-                notify "Modo tapa: hibernate on — tapa suspende → hiberna en 30 min"
-            fi
+        notify "Cambiando a suspend on (suspend-to-RAM)..."
+        if ujust setup-suspend 2>&1 | systemd-cat -t lid-toggle 2>/dev/null; then
+            notify "Modo tapa: suspend on — la tapa suspende en RAM (despierta en ~2s)"
         else
-            notify "Error al cambiar a hibernate on — revisa journalctl -t lid-toggle"
+            notify "Error al cambiar a suspend on — revisa journalctl -t lid-toggle"
             exit 1
         fi
         ;;

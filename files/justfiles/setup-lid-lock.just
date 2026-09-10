@@ -3,7 +3,7 @@
 # energía que tengas puesto (ahorro / equilibrado / rendimiento) — no lo
 # cambia. Ideal para tareas largas con tapa bajada (descargas, renders, builds)
 # sin forzar consumo extra si estás en ahorro de batería.
-# No suspende, no hiberna. Para el modo que sí ahorra batería: ujust setup-hibernate
+# No suspende, no hiberna. Para el modo que sí ahorra batería: ujust setup-suspend
 setup-lid-lock:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -207,14 +207,14 @@ setup-lid-lock:
     if [[ ! -e /proc/acpi/button/lid/LID/state && ! -e /proc/acpi/button/lid/LID0/state && ! -e /proc/acpi/button/lid/LID1/state ]]; then
         echo "   ℹ︎  No se detectó sensor de tapa en /proc/acpi/button/lid (normal en desktop/VM)."
     fi
-    # Navbar Noctalia → hibernate off
+    # Navbar Noctalia → suspend off
     /usr/bin/noctalia-lid-mode-sync.sh 2>/dev/null || true
 
     if [[ $FAIL -eq 0 ]]; then
         echo
         echo "✅ Hecho. Al cerrar la tapa: pantalla bloqueada, tareas siguen corriendo (en vivo, sin reboot)."
-        echo "   Navbar: hibernate off (tapa solo bloquea). Perfil respetado ($PPD_AFTER)."
-        echo "   Toggle futuro sin staged: ujust setup-hibernate ↔ ujust setup-lid-lock (HUP live)"
+        echo "   Navbar: suspend off (tapa solo bloquea). Perfil respetado ($PPD_AFTER)."
+        echo "   Toggle futuro sin staged: ujust setup-suspend ↔ ujust setup-lid-lock (HUP live)"
     else
         echo
         echo "⚠️  Instalado con advertencias. Revisa los mensajes de arriba."

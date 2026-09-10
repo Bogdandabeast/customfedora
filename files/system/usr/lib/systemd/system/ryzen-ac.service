@@ -1,0 +1,8 @@
+[Unit]
+Description=Ryzen 7730U restaura stock MSI al enchufar cargador (ADP1=1)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ryzen-ac-hook.sh
+RemainAfterExit=no
