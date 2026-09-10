@@ -20,7 +20,10 @@ echo "→ 1/5 Justfile presente y parseable"
 if [[ -f "$JUSTFILE" ]]; then pass "$JUSTFILE existe ($(wc -l < "$JUSTFILE") líneas)"; else fail "$JUSTFILE no existe"; FAIL=1; fi
 if just --version >/dev/null 2>&1; then
   if just --justfile "$JUSTFILE" --list >/dev/null 2>&1; then pass "just --list OK (setup-suspend, setup-suspend-cleanup)"; else fail "just --list falló"; FAIL=1; fi
+else
+  fail "just no disponible — no se pudo validar el justfile"; FAIL=1
 fi
+if [[ -f "$JUSTFILE" ]]; then
 python3 <<'PY' 2>&1 | sed 's/^/    /'
 import re, pathlib, subprocess, tempfile, os
 txt = pathlib.Path("files/justfiles/setup-suspend.just").read_text()
@@ -36,6 +39,7 @@ for m in re.finditer(r"^(setup-suspend[\w-]*):\n((?:    .*\n?)+)", txt, re.M):
     os.unlink(fn)
 raise SystemExit(0 if ok else 1)
 PY
+fi
 
 echo
 echo "→ 2/5 Suspend-to-RAM (sleep states)"
