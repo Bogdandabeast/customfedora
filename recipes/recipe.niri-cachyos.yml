@@ -189,6 +189,11 @@ modules:
     scripts:
       - downloadlatestwinboatrpm.sh
 
+  # Tailscale VPN (https://tailscale.com/install.sh)
+  - type: script
+    scripts:
+      - install-tailscale.sh
+
   # Ryzen 7730U SMU tuning — ryzen_smu for PPT (6W battery / 30W perf)
   # + EC 80% limit. See files/justfiles/ryzen-tuning.just (`just ryzen-setup`).
   # Compila ryzen_smu contra el kernel CachyOS (kernel-cachyos-devel-matched
@@ -243,6 +248,7 @@ modules:
         - ryzen-profiles-boot.service
         - ryzen-resume.service
         - msi-battery-80.service
+        - tailscaled.service
 
   - type: default-flatpaks
     configurations:

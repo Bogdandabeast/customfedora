@@ -127,6 +127,11 @@ modules:
     scripts:
       - downloadlatestwinboatrpm.sh
 
+  # Tailscale VPN (https://tailscale.com/install.sh)
+  - type: script
+    scripts:
+      - install-tailscale.sh
+
   # Homebrew / Linuxbrew (installs brew at first boot via brew-setup.service).
   # fish, lazygit, lazydocker and bun are then installed from brew by
   # brew-install-fish.service / brew-install-cli.service (see files/system).
@@ -153,6 +158,7 @@ modules:
         # Power profiles (self-enables on install, but ensure it stays enabled;
         # Kinoite ships it masked and that state survives rebases)
         - power-profiles-daemon.service
+        - tailscaled.service
         # Note: Ryzen 7730U tuning (6W/15W/9W + EC 80% + LAVD) lives only in
         # recipe.niri-cachyos.yml — this generic niri image is for other machines.
 
