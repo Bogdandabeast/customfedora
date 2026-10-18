@@ -20,8 +20,9 @@ ryzen-setup:
     else
       echo "   ya staged"
     fi
-    echo "-> modprobe.d ec_sys.conf"
+    echo "-> modprobe.d ec_sys.conf + autoload"
     echo "options ec_sys write_support=Y" | sudo tee /etc/modprobe.d/ec_sys.conf >/dev/null
+    echo "ec_sys" | sudo tee /etc/modules-load.d/ec_sys.conf >/dev/null
     echo "-> habilitar servicios ryzen (smu_loader, profiles-boot, ac, msi-battery-80, udev)"
     sudo systemctl daemon-reload
     sudo systemctl enable ryzen_smu_loader.service ryzen-profiles-boot.service ryzen-ac.service msi-battery-80.service
@@ -35,7 +36,9 @@ ryzen-setup:
       echo "   ADP1=0 bateria -> ultra 6W"
       sudo /usr/bin/ryzen-battery-hook.sh
     fi
-    echo "-> intentar EC 80% ya (falla si no has reiniciado con ec_sys Y, normal)"
+    echo "-> cargar ec_sys ahora (sin esperar reboot)"
+    sudo modprobe ec_sys 2>/dev/null || true
+    echo "-> intentar EC 80% ya (si el kernel no tiene ec_sys, se activa al proximo reboot)"
     sudo /usr/bin/msi-battery-80.sh 2>&1 | tail -n 10 || echo "   EC 80% se activara al proximo reboot"
     echo ""
     if [ "$kargs_staged" = "1" ]; then

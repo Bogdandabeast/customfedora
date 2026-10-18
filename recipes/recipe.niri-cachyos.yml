@@ -17,6 +17,15 @@ modules:
       - source: system
         destination: /
 
+  # ec_sys escribible desde el arranque: es el requisito del límite de carga
+  # 80% (msi-battery-80.service escribe EC[0xEF]=0xD0). El módulo se carga por
+  # /etc/modules-load.d/ec_sys.conf con las options de
+  # /etc/modprobe.d/ec_sys.conf, y el karg lo cubre si algo lo carga antes
+  # (persiste en /boot/loader/entries tras cada ostree update).
+  - type: kargs
+    kargs:
+      - ec_sys.write_support=Y
+
   # Replace Fedora's kernel with the CachyOS kernel from the
   # bieszczaders/kernel-cachyos COPR:
   # https://copr.fedorainfracloud.org/coprs/bieszczaders/kernel-cachyos/
@@ -67,7 +76,7 @@ modules:
             && test -f "/usr/lib/modules/${KVER}/modules.dep" \
             && echo "Kernel now: ${KVER}"
 
-  # scx schedulers — lavd en modo powersave para máximo ahorro en APU
+  # scx schedulers — cake (sched_ext, respuesta en juegos/uso general)
   # COPR bieszczaders/kernel-cachyos-addons provee scx-scheds/sc-x-tools
   # precompilados para Fedora (mismo mantenedor que kernel-cachyos).
   # https://copr.fedorainfracloud.org/coprs/bieszczaders/kernel-cachyos-addons/
@@ -225,8 +234,9 @@ modules:
         # Power profiles (self-enables on install, but ensure it stays enabled;
         # Kinoite ships it masked and that state survives rebases)
         - power-profiles-daemon.service
-        # scx_lavd — scheduler sched_ext en modo powersave (max batería APU).
-        # Lee /etc/default/scx (SCX_SCHEDULER=scx_lavd, SCX_FLAGS=--powersave).
+        # scx_cake — scheduler sched_ext (respuesta en juegos/uso general).
+        # Lee /etc/default/scx (SCX_SCHEDULER=scx_cake, SCX_FLAGS vacío: cake
+        # usa su política por defecto y no acepta --autopower/--powersave).
         # Tiene ConditionPathIsDirectory=/sys/kernel/sched_ext, así que no falla
         # si el kernel no tiene sched_ext. scx-scheds viene del COPR
         # bieszczaders/kernel-cachyos-addons.
@@ -241,9 +251,10 @@ modules:
         # suspend/hibernate (logind lid). system-sleep/ryzen-power-save corta
         # BT/USB/WoWLAN/kbd en cada suspend (min drenaje). msi-battery-80
         # escribe EC[0xEF]=0xD0 (80% | BIT7); requiere ec_sys.write_support=Y
-        # — ya viene en /etc/modprobe.d/ec_sys.conf y como kargs (rpm-ostree
-        # kargs si reinstalaste con just ryzen-setup — una vez, persiste
-        # tras kernel updates porque kargs y /etc sobreviven a ostree).
+        # — ya viene en /etc/modprobe.d/ec_sys.conf + el módulo autoload en
+        # /etc/modules-load.d/ec_sys.conf + el karg ec_sys.write_support=Y
+        # (módulo kargs de esta recipe), así que funciona desde el primer
+        # arranque sin `just ryzen-setup`.
         - ryzen_smu_loader.service
         - ryzen-profiles-boot.service
         - ryzen-resume.service

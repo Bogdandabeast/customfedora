@@ -1,12 +1,11 @@
 # scx scheduler config — managed by bluebuild (recipe.niri-cachyos.yml)
-# scx_lavd en modo autopower: sigue a power-profiles-daemon (PPD).
-# Noctalia/PPD -> scx_lavd:
-#   power-saver -> powersave (compactación agresiva, little cores, sin turbo)
-#   balanced    -> balanced  (compactación moderada, big cores físicos)
-#   performance -> performance (sin compactación, todos los cores, freq alta)
-# Ver `scx_lavd --help` para todas las flags.
-SCX_SCHEDULER=scx_lavd
-SCX_FLAGS=--autopower
+# scx_cake: scheduler sched_ext orientado a respuesta en juegos/uso general.
+# Usa su política por defecto; no tiene perfiles ni sigue a PPD, así que
+# --autopower/--powersave NO se pasan aquí (se ignorarían con un warning).
+# Ajustes opcionales vía --toggle, p. ej. SCX_FLAGS=--toggle g89=0
+# Ver `scx_cake --help` para flags y toggles.
+SCX_SCHEDULER=scx_cake
+SCX_FLAGS=
 
-# ALTERNATIVA: forzar máximo ahorro siempre (ignora PPD)
-#SCX_FLAGS=--powersave
+# ALTERNATIVA: máxima respuesta con logging (más ruido en el journal)
+#SCX_FLAGS=--verbose

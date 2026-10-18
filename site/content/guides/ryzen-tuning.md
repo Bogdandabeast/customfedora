@@ -57,9 +57,10 @@ Wifi `power_save` se deja siempre `off` (no se toca) para evitar cortes en `mt79
 | `usr/bin/ryzen-profiles` | `ryzen-profiles battery|restore|status` — kernel + SMU + GPU |
 | `usr/bin/ryzen-battery-hook.sh` | `ULTRA 6W 2.2GHz` + `bluetooth off + docker stop + USB autosuspend + brillo 40%` |
 | `usr/bin/ryzen-ac-hook.sh` | restaura stock MSI (sin caps) al enchufar |
-| `usr/local/bin/msi-battery-80.sh` | `EC[0xEF]=0xD0 (80% | BIT7)` + `charge_control_end_threshold` |
+| `usr/bin/msi-battery-80.sh` | `EC[0xEF]=0xD0 (80% | BIT7)` + `charge_control_end_threshold` |
 | `usr/libexec/ryzen_smu_loader.sh` | hotfix recompila `ryzen_smu.ko` si cambia `KVER` |
 | `etc/modprobe.d/ec_sys.conf` | `options ec_sys write_support=Y` |
+| `etc/modules-load.d/ec_sys.conf` | `ec_sys` autoload al arranque (80% sin pasos manuales; karg `ec_sys.write_support=Y` en la recipe) |
 | `etc/udev/rules.d/99-ryzen-profiles.rules` | `ADP1 0->battery 1->ac` |
 | `usr/lib/systemd/system/ryzen_*.service` + `msi-battery-80.service` | enabled |
 | `files/justfiles/ryzen-tuning.just` | `just` de imagen (importado en `justfile` raíz) |
