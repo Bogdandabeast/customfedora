@@ -30,19 +30,21 @@ jobs:
       # published daily by the bluebuild workflow (06:00 UTC), so :latest is
       # always fresh when this job runs.
       #
-      # Detect the Fedora major the weekly image is built on from the
-      # "<date>-<fedora>" tags that bluebuild pushes (e.g. 20260907-44). The
-      # installer must match the image's Fedora version, so this cannot be
-      # hardcoded forever. Falls back to 44 (ublue base-main is F44 currently).
-      - name: Detect Fedora version from published image tags
+      # Detect the Fedora major the image is built on. The installer must match
+      # it, and the image gets it from the recipe's `image-version` (the single
+      # place that number lives), so read it from there: bumping Fedora in the
+      # recipe also moves the ISO, no second edit.
+      - name: Read Fedora version from the recipe
         id: version
         run: |
           set -euo pipefail
-          token=$(curl -fsS "https://ghcr.io/token?scope=repository:bogdandabeast/niri:pull" | python3 -c "import json,sys;print(json.load(sys.stdin)['token'])")
-          tags=$(curl -fsS -H "Authorization: Bearer $token" "https://ghcr.io/v2/bogdandabeast/niri/tags/list")
-          ver=$(printf '%s' "$tags" | grep -oE '[0-9]{8}-[0-9]+' | sed -E 's/^.*-//' | sort -n | tail -1)
-          echo "Detected Fedora major version: ${ver:-44}"
-          echo "fedora=${ver:-44}" >> "$GITHUB_OUTPUT"
+          ver=$(grep -oP '^image-version:\s*\K[0-9]+' "recipes/${{ matrix.recipe }}" || true)
+          if [ -z "$ver" ]; then
+            echo "::error::recipes/${{ matrix.recipe }} has no numeric image-version (got '$ver')"
+            exit 1
+          fi
+          echo "Fedora major from recipes/${{ matrix.recipe }}: $ver"
+          echo "fedora=$ver" >> "$GITHUB_OUTPUT"
 
       - name: Build netinst installer ISO
         id: build

@@ -20,7 +20,7 @@ When `bluebuild` CI fails, triage locally before pushing another commit.
 | Common schema errors | Unknown `type:`, wrong `source: system` path, indented `repos:` under `install:` — `validate` prints the field |
 | Containerfile / kernel | `modules.dep is missing. Did you run depmod?` → missing `tsflags=noscripts` + `depmod -a $KVER` (see [CachyOS kernel](/guides/kernel-cachyos/)). Broken `RUN` heredoc → check `snippets:` quoting |
 | CI logs | `build.yml` → `Validate recipes` step prints `bluebuild validate ./recipes/*.yml`; `Build Custom Image` step streams the failing `RUN` line — search the log for the last `RUN` before `error` |
-| Rollback + pin | After a bad rebase, `rpm-ostree rollback` reboots into the previous `ostree` deployment; `image-version: latest` tracks `base-main:latest` — pin to a SHA only for a short bisect |
+| Rollback + pin | After a bad rebase, `rpm-ostree rollback` reboots into the previous `ostree` deployment; `image-version: 45` pins the base to a Fedora major, so a Fedora bump is one edit in the recipe header — pin a SHA only for a short bisect |
 | Local build | `bluebuild validate` + `bluebuild build` require the BlueBuild CLI (`curl -fsSL https://raw.githubusercontent.com/blue-build/cli/main/install.sh | bash` — same as CI `Install BlueBuild CLI` step) |
 
 ```bash

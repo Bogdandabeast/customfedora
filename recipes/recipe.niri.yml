@@ -8,7 +8,12 @@ description: Fedora Atomic with Niri compositor and Noctalia Shell
 # implicitly (login manager, keyring, file manager, gvfs, power profiles,
 # xdg-user-dirs, Qt Wayland support) is installed explicitly below.
 base-image: ghcr.io/ublue-os/base-main
-image-version: latest
+# Fedora major this image tracks: the ONE place the number lives.
+# Bump it only when ublue publishes the new tag (tags today: 43, 44, 45).
+# The dnf module then follows on its own: $releasever / %OS_VERSION% are read
+# from the base image's VERSION_ID, so Fedora mirrors, docker-ce, the zed COPR
+# and cloudflare-warp all resolve against the same Fedora major.
+image-version: 45
 
 modules:
   # Desktop shell and compositor support
@@ -23,7 +28,9 @@ modules:
         - zed.repo
         - vstudio.repo
         - docker-ce.repo
-        - https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo
+        # Local file: $releasever first, last tree Cloudflare published as
+        # fallback. See files/dnf/cloudflare-warp.repo for why.
+        - cloudflare-warp.repo
     install:
       skip-broken: true
       packages:
@@ -51,8 +58,10 @@ modules:
         # trash, automount (udisks2 is already in base) and remote mounts.
         - nautilus
         - file-roller
+        # gvfs-archive is gone as of Fedora 45 (subpackage dropped upstream);
+        # listing it fails the whole dnf transaction. Re-add only if mdapi
+        # reports it back: https://mdapi.fedoraproject.org/f45/pkg/gvfs-archive
         - gvfs
-        - gvfs-archive
         - gvfs-fuse
         - gvfs-mtp
         - gvfs-nfs

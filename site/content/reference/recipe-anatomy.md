@@ -18,7 +18,7 @@ A recipe is the build manifest. BlueBuild reads it top-to-bottom and generates t
 |-------|--------------|------------------------------|
 | `name` | Image name / tag suffix | `name: niri` → `ghcr.io/...:niri` |
 | `base-image` | `FROM` for the build | `ghcr.io/ublue-os/base-main` |
-| `image-version` | Tag of base to track | `latest` (tracks Fedora) |
+| `image-version` | Tag of base to track | `45` (Fedora major — the only place the number lives) |
 | `modules[]` | Ordered build steps | 8 entries (see below) |
 
 Real snippet — first 30 lines of `recipes/recipe.niri.yml`:
@@ -29,7 +29,7 @@ Real snippet — first 30 lines of `recipes/recipe.niri.yml`:
 name: niri
 description: Fedora Atomic with Niri compositor and Noctalia Shell
 base-image: ghcr.io/ublue-os/base-main
-image-version: latest
+image-version: 45
 modules:
   - type: files
     files:
@@ -37,12 +37,13 @@ modules:
         destination: /
   - type: dnf
     repos:
-      files: [zed.repo, vstudio.repo, docker-ce.repo,
-              https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo]
+      files: [zed.repo, vstudio.repo, docker-ce.repo, cloudflare-warp.repo]
     install:
       skip-broken: true
       packages: [niri, noctalia, alacritty, sddm, nautilus, gvfs, ...]
 ```
+
+`files/dnf/*.repo` are local copies of the vendor repo files. The Fedora-versioned ones point at `$releasever` (microsoft's vscode repo is versionless), so they follow the same Fedora major as `image-version`. No Fedora number is repeated in the module list.
 
 CachyOS flavour inserts two extra modules before the main `dnf` block: a `dnf` for `sbsigntools`/`mokutil` and a `containerfile` kernel swap. See `recipe.niri-cachyos.yml` for that exact `tsflags=noscripts` + `depmod -a` pattern.
 

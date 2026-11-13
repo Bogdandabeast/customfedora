@@ -1,6 +1,15 @@
+# Cloudflare publishes per-Fedora-version RPM trees under /rpm/<releasever>,
+# but only for the releases they have built against: /rpm/45 still 404s while
+# /rpm/44 works. dnf5 accepts several baseurls and uses the first one that
+# returns valid metadata, so list $releasever first (it starts working by
+# itself the day Cloudflare publishes that tree, no edit needed) and the last
+# published tree as the fallback.
+#
+# The package only requires stable names (glibc, libpcap, webkit2gtk4.1,
+# nftables, ...), so a build for a previous Fedora installs fine on a newer one.
 [cloudflare-warp-stable]
 name=cloudflare-warp-stable
-baseurl=https://pkg.cloudflareclient.com/rpm/$releasever
+baseurl=https://pkg.cloudflareclient.com/rpm/$releasever https://pkg.cloudflareclient.com/rpm/44
 enabled=1
 type=rpm
 gpgcheck=1

@@ -29,17 +29,17 @@ Three active recipes share one `files/system/` overlay. Flavour is chosen at reb
 
 ```yaml
 # flavour distinction in one glance
-# recipe.niri.yml:          base-image: ghcr.io/ublue-os/base-main  image-version: latest
+# recipe.niri.yml:          base-image: ghcr.io/ublue-os/base-main  image-version: 45
 # recipe.niri-cachyos.yml:  same base + containerfile kernel swap + copr bieszczaders/kernel-cachyos
 ```
 
-Base is `ghcr.io/ublue-os/base-main` (minimal Atomic, no DE). SDDM, Nautilus/`gvfs`, `power-profiles-daemon`, `xdg-user-dirs` are installed explicitly because base has no desktop. `image-version: latest` tracks Fedora latest; pin only if you need a stable gate.
+Base is `ghcr.io/ublue-os/base-main` (minimal Atomic, no DE). SDDM, Nautilus/`gvfs`, `power-profiles-daemon`, `xdg-user-dirs` are installed explicitly because base has no desktop. `image-version: 45` pins the Fedora major — the only place that number is written; `$releasever` in the repo files follows it.
 
 ## Checklist
 
 - [ ] Can name which recipe builds `ghcr.io/...:niri` vs `:niri-cachyos` vs `:nvidia`.
 - [ ] Know `files/system/` is shared — changes affect all flavours unless guarded by a module.
-- [ ] Know `image-version` is `latest` today; pinning requires a conscious commit.
+- [ ] Know `image-version` is `45` today: bumping Fedora is one edit in each recipe header, not a sweep of repo URLs.
 
 Ryzen tuning (perfil único `6W` batería + `GPU powersaving` + `80%` + `LAVD`; stock al enchufar) lives in [Ryzen 7730U tuning](/guides/ryzen-tuning/).
 

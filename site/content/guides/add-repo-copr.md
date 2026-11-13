@@ -17,10 +17,10 @@ Add packages from outside Fedora — COPR or a third-party `.repo` file — with
 | Topic | Decision |
 |-------|----------|
 | COPR repo | `repos: { copr: [bieszczaders/kernel-cachyos] }` — BlueBuild enables the COPR at build time; no `copr enable` script needed |
-| File repo | `repos: { files: [zed.repo, vstudio.repo] }` where `zed.repo` is a file shipped via `files/system/etc/yum.repos.d/` or a remote URL (e.g. `https://pkg.cloudflareclient.com/...repo`) |
+| File repo | `repos: { files: [zed.repo, vstudio.repo] }` where `zed.repo` is a file committed under `files/dnf/` or a remote URL (e.g. `https://pkg.cloudflareclient.com/...repo`) |
 | `priority` / ordering | Keep vendor repos in the same `dnf` block as the packages that need them; BlueBuild writes repo files before `dnf5 install` — no separate `priority` field needed |
 | Same package in two repos | DNF picks highest version; pin with `install.packages: [pkg-1.2.3]` if you need a specific NVR |
-| Real examples | `copr: [bieszczaders/kernel-cachyos, bieszczaders/kernel-cachyos-addons]` → `scx-scheds`; `files: [docker-ce.repo, https://pkg.cloudflareclient.com/...]` → `docker-ce`, `cloudflare-warp` |
+| Real examples | `copr: [bieszczaders/kernel-cachyos, bieszczaders/kernel-cachyos-addons]` → `scx-scheds`; `files: [docker-ce.repo, cloudflare-warp.repo]` → `docker-ce`, `cloudflare-warp` |
 
 ```yaml
 # COPR — kernel and schedulers
@@ -28,15 +28,15 @@ Add packages from outside Fedora — COPR or a third-party `.repo` file — with
   repos: { copr: [bieszczaders/kernel-cachyos-addons] }
   install: { packages: [scx-scheds] }
 
-# File / URL repo — vendor RPMs
+# File repo — vendor RPMs (repo files committed under files/dnf/)
 - type: dnf
   repos:
-    files: [zed.repo, "https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo"]
+    files: [zed.repo, cloudflare-warp.repo]
   install: { packages: [zed, cloudflare-warp] }
 ```
 
 {{< callout type="info" >}}
-`files` repos that reference a local `*.repo` expect that file under `files/system/etc/yum.repos.d/` (copied by the `type: files` module). Remote URLs are fetched at build time — no local file needed.
+Local `*.repo` files go in `files/dnf/` (not `files/system/etc/yum.repos.d/`): the `dnf` module reads them from the build context. Remote URLs are fetched at build time — no local file needed. Use `$releasever` inside the repo file instead of a Fedora number so it follows the recipe's `image-version`; for a vendor that lags a release (Cloudflare WARP), list `$releasever` first and the last published tree second — dnf5 uses the first `baseurl` that answers.
 {{< /callout >}}
 
 ## Checklist

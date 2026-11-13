@@ -31,7 +31,7 @@ BlueBuild modules run top-to-bottom. Order matters — the CachyOS flavour remov
 ```yaml
 # excerpt — recipes/recipe.niri.yml (real file, trimmed)
 base-image: ghcr.io/ublue-os/base-main
-image-version: latest
+image-version: 45
 modules:
   - type: files
     files: [{ source: system, destination: / }]
