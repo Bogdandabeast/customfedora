@@ -41,7 +41,7 @@ jobs:
           cache-dependency-path: site/go.mod
 
       - name: Setup just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
         with:
           just-version: 1.42.4
 
